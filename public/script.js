@@ -126,7 +126,7 @@ function renderBackgroundHearts(heartsList) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function initSayByMe() {
   const step1 = document.getElementById("step-1");
   const step2 = document.getElementById("step-2");
   const step3 = document.getElementById("step-3");
@@ -656,15 +656,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Setup Celebrations & Finale
     const yesMsg = `You just made ${sender}'s whole world brighter. Thank you for saying yes! ${getHeartSvg(16, "sbmHeartInline")}`;
-    peCardSender.textContent = sender;
-    peCardRecipient.textContent = recipient;
-    peCardQuestion.textContent = `“${question}”`;
-    peCardYesMsg.textContent = yesMsg;
+    if (peCardSender) peCardSender.textContent = sender;
+    if (peCardRecipient) peCardRecipient.textContent = recipient;
+    if (peCardQuestion) peCardQuestion.textContent = `“${question}”`;
+    if (peCardYesMsg) peCardYesMsg.textContent = yesMsg;
 
-    peFireworksHeading.textContent = `${recipient} said YES!`;
-    peFireworksMsg.textContent = yesMsg;
-    peFinaleTitle.textContent = `Thank you, ${recipient}`;
-    peFinaleSubtitle.textContent = `This is where ${sender} and you begin your next beautiful chapter.`;
+    if (peFireworksHeading) peFireworksHeading.textContent = `${recipient} said YES!`;
+    if (peFireworksMsg) peFireworksMsg.textContent = yesMsg;
+    if (peFinaleTitle) peFinaleTitle.textContent = `Thank you, ${recipient}`;
+    if (peFinaleSubtitle) peFinaleSubtitle.textContent = `This is where ${sender} and you begin your next beautiful chapter.`;
   }
 
   function showExperienceIntro() {
@@ -1854,58 +1854,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Initial step setup
-  const params = new URLSearchParams(window.location.search);
-  const initialStep = params.get("step");
-  const initialName = params.get("name") || sessionStorage.getItem("saybyme_sender");
-  const initialTo = params.get("to") || sessionStorage.getItem("saybyme_recipient");
+  // Step 1: Submit -> Step 2
+  if (homeForm) {
+    homeForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = nameInput ? nameInput.value.trim() : "";
+      if (!name) return;
 
-  if (initialStep === "7") {
-    if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
-    if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
-    showStep7();
-  } else if (initialStep === "5") {
-    if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
-    if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
-    showStep5();
-  } else if (initialStep === "4") {
-    if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
-    if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
-    showStep4();
-  } else if (initialStep === "3" || (initialName && initialTo)) {
-    if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
-    if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
-    showStep3();
-  } else if (initialName) {
-    showStep2(initialName);
-  } else {
-    showStep1();
+      sessionStorage.setItem("saybyme_sender", name);
+      showStep2(name);
+    });
   }
 
-  // Step 1: Submit -> Step 2
-  homeForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = nameInput.value.trim();
-    if (!name) return;
-
-    sessionStorage.setItem("saybyme_sender", name);
-    showStep2(name);
-  });
-
   // Step 2: Back -> Step 1
-  backToStep1.addEventListener("click", () => {
-    showStep1();
-  });
+  if (backToStep1) {
+    backToStep1.addEventListener("click", () => {
+      showStep1();
+    });
+  }
 
   // Step 2: Submit -> Step 3
-  recipientForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const to = recipientInput.value.trim();
-    if (!to) return;
+  if (recipientForm) {
+    recipientForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const to = recipientInput ? recipientInput.value.trim() : "";
+      if (!to) return;
 
-    sessionStorage.setItem("saybyme_recipient", to);
-    showStep3();
-  });
+      sessionStorage.setItem("saybyme_recipient", to);
+      showStep3();
+    });
+  }
 
   // Step 3: Option Card Selection
   optionCards.forEach((card) => {
@@ -1921,46 +1899,97 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Step 3: Back -> Step 2
-  backToStep2.addEventListener("click", () => {
-    const from = sessionStorage.getItem("saybyme_sender") || "";
-    showStep2(from);
-  });
+  if (backToStep2) {
+    backToStep2.addEventListener("click", () => {
+      const from = sessionStorage.getItem("saybyme_sender") || "";
+      showStep2(from);
+    });
+  }
 
   // Step 3: Submit -> Step 4
-  questionForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    sessionStorage.setItem("saybyme_question", selectedQuestion);
-    showStep4();
-  });
+  if (questionForm) {
+    questionForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      sessionStorage.setItem("saybyme_question", selectedQuestion);
+      showStep4();
+    });
+  }
 
   // Step 4: Back -> Step 3
-  backToStep3.addEventListener("click", () => {
-    showStep3();
-  });
+  if (backToStep3) {
+    backToStep3.addEventListener("click", () => {
+      showStep3();
+    });
+  }
 
   // Step 4: Submit -> Step 5
-  letterForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const message = letterTextarea.value.trim() || DEFAULT_MESSAGE;
-    sessionStorage.setItem("saybyme_message", message);
-    showStep5();
-  });
+  if (letterForm) {
+    letterForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const message = (letterTextarea && letterTextarea.value.trim()) || DEFAULT_MESSAGE;
+      sessionStorage.setItem("saybyme_message", message);
+      showStep5();
+    });
+  }
 
   // Step 5: Back -> Step 4
-  backToStep4.addEventListener("click", () => {
-    showStep4();
-  });
+  if (backToStep4) {
+    backToStep4.addEventListener("click", () => {
+      showStep4();
+    });
+  }
 
   // Step 5: Submit -> Step 7 (Final Proposal Preview)
-  step5Form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    sessionStorage.setItem("saybyme_celebrations", JSON.stringify(selectedCelebrations));
-    showStep7();
-  });
+  if (step5Form) {
+    step5Form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      sessionStorage.setItem("saybyme_celebrations", JSON.stringify(selectedCelebrations));
+      showStep7();
+    });
+  }
+
+  // Initial step setup (evaluated safely after all event handlers are registered)
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const initialStep = params.get("step");
+    const initialName = params.get("name") || sessionStorage.getItem("saybyme_sender");
+    const initialTo = params.get("to") || sessionStorage.getItem("saybyme_recipient");
+
+    if (initialStep === "7") {
+      if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
+      if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
+      showStep7();
+    } else if (initialStep === "5") {
+      if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
+      if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
+      showStep5();
+    } else if (initialStep === "4") {
+      if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
+      if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
+      showStep4();
+    } else if (initialStep === "3" || (initialName && initialTo)) {
+      if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
+      if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
+      showStep3();
+    } else if (initialName) {
+      showStep2(initialName);
+    } else {
+      showStep1();
+    }
+  } catch (err) {
+    console.error("Error setting initial step, falling back to Step 1:", err);
+    showStep1();
+  }
 
   // Initialize Card Deck
   initCardDeck();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initSayByMe);
+} else {
+  initSayByMe();
+}
 
 
 
