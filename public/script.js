@@ -614,11 +614,11 @@ function initSayByMe() {
     }
     currentCelebIdx = 0;
 
-    // Populate Right-hand summary
-    previewRecipientHeading.textContent = recipient;
-    summarySenderName.textContent = sender;
-    summaryRecipientName.textContent = recipient;
-    summaryQuestion.textContent = question;
+    // Populate Right-hand summary (if present in DOM)
+    if (previewRecipientHeading) previewRecipientHeading.textContent = recipient;
+    if (summarySenderName) summarySenderName.textContent = sender;
+    if (summaryRecipientName) summaryRecipientName.textContent = recipient;
+    if (summaryQuestion) summaryQuestion.textContent = question;
 
     const CELEB_LABELS = {
       memories: "🌸 Little Memories",
@@ -626,9 +626,11 @@ function initSayByMe() {
       card: "🌸 Little Memories",
       message: "🌸 Little Memories",
     };
-    summaryCelebrationPills.innerHTML = celebrationQueue
-      .map((c) => `<span class="celebPill">${CELEB_LABELS[c] || c}</span>`)
-      .join("");
+    if (summaryCelebrationPills) {
+      summaryCelebrationPills.innerHTML = celebrationQueue
+        .map((c) => `<span class="celebPill">${CELEB_LABELS[c] || c}</span>`)
+        .join("");
+    }
 
     // Setup Stage 1: Welcome
     peWelcomeTitle.textContent = `A letter for ${recipient}`;
@@ -1494,8 +1496,10 @@ function initSayByMe() {
 
     const from = sessionStorage.getItem("saybyme_sender") || "";
     const to = sessionStorage.getItem("saybyme_recipient") || "";
-    const query = `?name=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&step=7`;
-    window.history.replaceState(null, "", `${window.location.pathname}${query}`);
+    if (!window.location.pathname.startsWith("/preview") && !window.__SAYBYME_RECIPIENT_MODE__) {
+      const query = `?name=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&step=7`;
+      window.history.replaceState(null, "", `${window.location.pathname}${query}`);
+    }
 
     startProposalExperience();
   }
@@ -1568,6 +1572,14 @@ function initSayByMe() {
     peThinkBtn.disabled = true;
     peThinkingBox.style.display = "none";
     renderQuestionBear("happy");
+
+    if (typeof window.__SAYBYME_ON_ACCEPT__ === "function") {
+      try {
+        window.__SAYBYME_ON_ACCEPT__();
+      } catch (err) {
+        console.error("Error executing onAccept hook:", err);
+      }
+    }
 
     const POPS = Array.from({ length: 10 }, (_, i) => {
       const a = (i / 10) * Math.PI * 2;
@@ -1950,6 +1962,14 @@ function initSayByMe() {
 
   // Initial step setup (evaluated safely after all event handlers are registered)
   try {
+    if (window.__SAYBYME_RECIPIENT_MODE__ || window.location.pathname.startsWith("/preview")) {
+      document.body.classList.add("recipient-view");
+      showStep7();
+      initCardDeck();
+      window.initSayByMe = initSayByMe;
+      return;
+    }
+
     const params = new URLSearchParams(window.location.search);
     const initialStep = params.get("step");
     const initialName = params.get("name") || sessionStorage.getItem("saybyme_sender");
@@ -1983,6 +2003,7 @@ function initSayByMe() {
 
   // Initialize Card Deck
   initCardDeck();
+  window.initSayByMe = initSayByMe;
 }
 
 if (document.readyState === "loading") {

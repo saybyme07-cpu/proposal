@@ -2449,6 +2449,55 @@ p.sbm-caret::after {
   text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
 }
 
+/* ============================================================================== */
+/* RECIPIENT VIEW MODE: Exact Step 7 phone preview, centered and pure              */
+/* ============================================================================== */
+.recipient-view .step7TitleSection {
+  display: none !important;
+}
+
+.recipient-view #step-1,
+.recipient-view #step-2,
+.recipient-view #step-3,
+.recipient-view #step-4,
+.recipient-view #step-5 {
+  display: none !important;
+}
+
+.recipient-view #step-7 {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 100vh !important;
+  padding: 16px 8px !important;
+}
+
+.recipient-view .step7Grid {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  max-width: 100% !important;
+  margin-top: 0 !important;
+}
+
+.recipient-view .step7Grid > div:nth-child(2) {
+  display: none !important; /* Hide editor summary card & continue button */
+}
+
+.recipient-view .replayBtn {
+  display: none !important;
+}
+
+.recipient-view .phoneFrameWrapper {
+  margin: 0 auto !important;
+}
+
+.recipient-view .phoneFrame {
+  height: min(720px, 88vh) !important;
+  width: min(360px, 94vw) !important;
+  box-shadow: 0 35px 80px -15px rgba(146, 54, 76, 0.55), inset 0 0 0 2px #4a2535 !important;
+}
+
 
 
 
