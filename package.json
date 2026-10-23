@@ -2,7 +2,6 @@
   "name": "saybyme",
   "version": "1.0.0",
   "description": "SayByMe is a romantic proposal web application that lets users create personalized proposals with interactive love letters, romantic memories photo carousels, and a canvas 2D fireworks engine with custom bursts and heart shapes.",
-  "main": "script.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
