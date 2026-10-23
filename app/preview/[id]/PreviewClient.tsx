@@ -122,7 +122,7 @@ export default function PreviewClient({ htmlContent, slug }: PreviewClientProps)
   return (
     <>
       <div className="recipient-view" dangerouslySetInnerHTML={{ __html: htmlContent }} />
-      <Script src="/script.js?v=4" strategy="afterInteractive" />
+      <Script src="/script.js?v=5" strategy="afterInteractive" />
     </>
   );
 }
