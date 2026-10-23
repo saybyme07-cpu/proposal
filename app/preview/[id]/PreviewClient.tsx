@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Link from "next/link";
@@ -14,6 +14,8 @@ interface PreviewClientProps {
 export default function PreviewClient({ htmlContent, slug }: PreviewClientProps) {
   const proposal = useQuery(api.proposals.getProposalBySlug, slug ? { slug } : "skip");
   const markAccepted = useMutation(api.proposals.markAccepted);
+
+  const initializedRef = useRef(false);
 
   useEffect(() => {
     if (!proposal) return;
@@ -38,9 +40,13 @@ export default function PreviewClient({ htmlContent, slug }: PreviewClientProps)
 
     document.body.classList.add("recipient-view");
 
-    // If script.js has already initialized or is loaded, re-run with proposal data
-    if (typeof (window as any).initSayByMe === "function") {
-      (window as any).initSayByMe();
+    // Only run initSayByMe ONCE! When markAccepted updates the proposal document in Convex,
+    // useQuery triggers a re-render. Do NOT re-run initSayByMe or it will reset to the letter.
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      if (typeof (window as any).initSayByMe === "function") {
+        (window as any).initSayByMe();
+      }
     }
 
     return () => {
