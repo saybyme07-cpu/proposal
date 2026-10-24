@@ -487,6 +487,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function attemptAutoplayBgm() {
+    initAudioElements();
+    currentAudioMode = "bgm";
+    if (isAudioMuted || !bgmAudio) return;
+
+    const p = bgmAudio.play();
+    if (p && typeof p.then === "function") {
+      p.then(() => {
+        updateAudioToggleUI();
+      }).catch(() => {
+        // Autoplay policy prevented immediate playback without gesture
+        const unlockAudio = () => {
+          if (currentAudioMode === "bgm" && !isAudioMuted && bgmAudio) {
+            bgmAudio.play().then(() => updateAudioToggleUI()).catch(() => {});
+          }
+          window.removeEventListener("pointerdown", unlockAudio);
+          window.removeEventListener("touchstart", unlockAudio);
+          window.removeEventListener("click", unlockAudio);
+        };
+        window.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
+        window.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
+        window.addEventListener("click", unlockAudio, { once: true, passive: true });
+      });
+    }
+  }
+
   function playBgm() {
     initAudioElements();
     currentAudioMode = "bgm";
@@ -498,7 +524,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isAudioMuted || !bgmAudio) return;
     const p = bgmAudio.play();
     if (p && typeof p.then === "function") {
-      p.catch(() => {});
+      p.then(() => updateAudioToggleUI()).catch(() => {});
     }
   }
 
@@ -620,6 +646,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateBear("none");
     renderBackgroundHearts(HEARTS_STEP1);
     window.history.replaceState(null, "", window.location.pathname);
+    attemptAutoplayBgm();
   }
 
   function showStep2(fromName) {
@@ -723,6 +750,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startProposalExperience() {
     hideAllExperienceStages();
+    attemptAutoplayBgm();
 
     const sender = sessionStorage.getItem("saybyme_sender") || "You";
     const recipient = sessionStorage.getItem("saybyme_recipient") || "Your Love";
@@ -2040,8 +2068,9 @@ document.addEventListener("DOMContentLoaded", () => {
     showStep7();
   });
 
-  // Initialize Card Deck
+  // Initialize Card Deck & Audio for entry page
   initCardDeck();
+  attemptAutoplayBgm();
 });
 
 
