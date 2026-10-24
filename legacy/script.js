@@ -519,25 +519,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (isAudioMuted || !bgmAudio) return;
 
+    bgmAudio.muted = false;
+    bgmAudio.volume = 0.55;
     const p = bgmAudio.play();
     if (p && typeof p.then === "function") {
       p.then(() => {
         updateAudioToggleUI();
       }).catch(() => {
-        // Autoplay policy prevented immediate playback without gesture; unlock on first touch
+        // Autoplay policy prevented immediate playback without gesture
+        const events = ["pointerdown", "touchstart", "mousedown", "mousemove", "wheel", "scroll", "keydown", "focus"];
         const unlockAudio = () => {
           if (currentAudioMode === "bgm" && !isAudioMuted && bgmAudio) {
+            bgmAudio.muted = false;
+            bgmAudio.volume = 0.55;
             bgmAudio.play().then(() => updateAudioToggleUI()).catch(() => {});
           }
-          window.removeEventListener("pointerdown", unlockAudio, true);
-          window.removeEventListener("touchstart", unlockAudio, true);
-          window.removeEventListener("mousedown", unlockAudio, true);
-          window.removeEventListener("click", unlockAudio, true);
+          events.forEach((ev) => window.removeEventListener(ev, unlockAudio, true));
         };
-        window.addEventListener("pointerdown", unlockAudio, { once: true, capture: true });
-        window.addEventListener("touchstart", unlockAudio, { once: true, capture: true });
-        window.addEventListener("mousedown", unlockAudio, { once: true, capture: true });
-        window.addEventListener("click", unlockAudio, { once: true, capture: true });
+        events.forEach((ev) => window.addEventListener(ev, unlockAudio, { once: true, capture: true, passive: true }));
       });
     }
   }
@@ -554,6 +553,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     updateAudioToggleUI();
     if (isAudioMuted || !bgmAudio) return;
+    bgmAudio.muted = false;
+    bgmAudio.volume = 0.55;
     const p = bgmAudio.play();
     if (p && typeof p.then === "function") {
       p.then(() => updateAudioToggleUI()).catch(() => {});
@@ -571,6 +572,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     updateAudioToggleUI();
     if (isAudioMuted || !fireworksAudio) return;
+    fireworksAudio.muted = false;
+    fireworksAudio.volume = 0.65;
     fireworksAudio.currentTime = 0;
     const p = fireworksAudio.play();
     if (p && typeof p.then === "function") {
@@ -589,20 +592,35 @@ document.addEventListener("DOMContentLoaded", () => {
       updateAudioToggleUI();
       return;
     }
-    isAudioMuted = !isAudioMuted;
-    if (window.__SBM_AUDIO__) {
-      window.__SBM_AUDIO__.muted = isAudioMuted;
-    }
-    if (isAudioMuted) {
-      if (bgmAudio) bgmAudio.pause();
-      if (fireworksAudio) fireworksAudio.pause();
-    } else {
+
+    const isPlaying = (currentAudioMode === "fireworks")
+      ? (fireworksAudio && !fireworksAudio.paused && !fireworksAudio.muted)
+      : (bgmAudio && !bgmAudio.paused && !bgmAudio.muted);
+
+    if (!isPlaying || isAudioMuted) {
+      // Turn sound ON
+      isAudioMuted = false;
+      if (window.__SBM_AUDIO__) window.__SBM_AUDIO__.muted = false;
       if (currentAudioMode === "fireworks") {
-        if (fireworksAudio) fireworksAudio.play().catch(() => {});
+        if (fireworksAudio) {
+          fireworksAudio.muted = false;
+          fireworksAudio.volume = 0.65;
+          fireworksAudio.play().catch(() => {});
+        }
       } else {
         currentAudioMode = "bgm";
-        if (bgmAudio) bgmAudio.play().catch(() => {});
+        if (bgmAudio) {
+          bgmAudio.muted = false;
+          bgmAudio.volume = 0.55;
+          bgmAudio.play().catch(() => {});
+        }
       }
+    } else {
+      // Turn sound OFF
+      isAudioMuted = true;
+      if (window.__SBM_AUDIO__) window.__SBM_AUDIO__.muted = true;
+      if (bgmAudio) bgmAudio.pause();
+      if (fireworksAudio) fireworksAudio.pause();
     }
     updateAudioToggleUI();
   }

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Itim&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=16" />
+  <link rel="stylesheet" href="style.css?v=17" />
   <link rel="preload" href="audio/bgm.m4a" as="audio" type="audio/mp4" />
   <link rel="preload" href="audio/bgm.m4a" as="fetch" crossorigin="anonymous" />
 </head>
@@ -27,8 +27,8 @@
       </svg>
     </button>
 
-    <!-- Native Preloaded Audio Elements for Instant 0-Delay Playback -->
-    <audio id="sbmBgmElement" src="audio/bgm.m4a" loop preload="auto" playsinline></audio>
+    <!-- Native Preloaded Audio Elements for Direct Instant Playback -->
+    <audio id="sbmBgmElement" src="audio/bgm.m4a" autoplay loop preload="auto" playsinline></audio>
     <audio id="sbmFireworksElement" src="audio/fireworks.mp3" loop preload="auto" playsinline></audio>
 
     <script>
@@ -55,53 +55,97 @@
           });
         }
 
-        function tryPlayBgmInstantly() {
-          if (!bgm || window.__SBM_AUDIO__.muted) return;
-          var p = bgm.play();
-          if (p && p.then) {
-            p.then(function() {
+        var directEvents = ['pointerdown', 'touchstart', 'mousedown', 'mousemove', 'wheel', 'scroll', 'keydown', 'focus'];
+
+        function removeDirectListeners(handler) {
+          directEvents.forEach(function(ev) {
+            window.removeEventListener(ev, handler, { capture: true });
+            document.removeEventListener(ev, handler, { capture: true });
+          });
+        }
+
+        function addDirectListeners(handler) {
+          directEvents.forEach(function(ev) {
+            window.addEventListener(ev, handler, { capture: true, passive: true });
+            document.addEventListener(ev, handler, { capture: true, passive: true });
+          });
+        }
+
+        function startDirectPlayback() {
+          if (!bgm || (window.__SBM_AUDIO__ && window.__SBM_AUDIO__.muted)) return;
+          bgm.volume = 0.55;
+          bgm.muted = false;
+
+          var playPromise = bgm.play();
+          if (playPromise !== undefined) {
+            playPromise.then(function() {
               updateAllAudioButtons(false, true);
             }).catch(function() {
-              // Autoplay waiting for user gesture
+              bgm.muted = true;
+              bgm.play().then(function() {
+                var unmuteOnFirstMovement = function() {
+                  if (window.__SBM_AUDIO__ && window.__SBM_AUDIO__.muted) return;
+                  bgm.muted = false;
+                  bgm.volume = 0.55;
+                  updateAllAudioButtons(false, true);
+                  removeDirectListeners(unmuteOnFirstMovement);
+                };
+                addDirectListeners(unmuteOnFirstMovement);
+              }).catch(function() {
+                var playOnFirstMovement = function() {
+                  if (window.__SBM_AUDIO__ && window.__SBM_AUDIO__.muted) return;
+                  bgm.muted = false;
+                  bgm.volume = 0.55;
+                  bgm.play().then(function() {
+                    updateAllAudioButtons(false, true);
+                  }).catch(function() {});
+                  removeDirectListeners(playOnFirstMovement);
+                };
+                addDirectListeners(playOnFirstMovement);
+              });
             });
           }
         }
 
-        // 1. Play immediately as page is loading
-        tryPlayBgmInstantly();
+        // 1. Trigger directly during page load
+        startDirectPlayback();
+
+        // 2. Trigger on DOMContentLoaded and load
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', tryPlayBgmInstantly, { once: true });
+          document.addEventListener('DOMContentLoaded', startDirectPlayback, { once: true });
         }
+        window.addEventListener('load', startDirectPlayback, { once: true });
 
-        // 2. Play on very first screen touch/click with zero delay (capture phase)
-        function unlockImmediately() {
-          tryPlayBgmInstantly();
-          window.removeEventListener('pointerdown', unlockImmediately, true);
-          window.removeEventListener('touchstart', unlockImmediately, true);
-          window.removeEventListener('mousedown', unlockImmediately, true);
-        }
-        window.addEventListener('pointerdown', unlockImmediately, true);
-        window.addEventListener('touchstart', unlockImmediately, true);
-        window.addEventListener('mousedown', unlockImmediately, true);
-
-        // 3. Global toggle function
+        // 3. Global toggle function: clicking button when paused plays it immediately
         window.__sbmToggleAudio = function() {
           var s = window.__SBM_AUDIO__;
-          s.muted = !s.muted;
           var fw = document.getElementById('sbmFireworksElement');
-          if (s.muted) {
-            if (bgm) bgm.pause();
-            if (fw) fw.pause();
-            updateAllAudioButtons(true, false);
-          } else {
+
+          var isCurrentlyPlaying = (s.mode === 'fireworks') 
+            ? (fw && !fw.paused && !fw.muted) 
+            : (bgm && !bgm.paused && !bgm.muted);
+
+          if (!isCurrentlyPlaying || s.muted) {
+            s.muted = false;
             if (s.mode === 'fireworks' && fw) {
+              fw.muted = false;
+              fw.volume = 0.65;
               fw.play().catch(function() {});
               updateAllAudioButtons(false, true);
             } else {
               s.mode = 'bgm';
-              if (bgm) bgm.play().catch(function() {});
-              updateAllAudioButtons(false, true);
+              if (bgm) {
+                bgm.muted = false;
+                bgm.volume = 0.55;
+                bgm.play().catch(function() {});
+                updateAllAudioButtons(false, true);
+              }
             }
+          } else {
+            s.muted = true;
+            if (bgm) bgm.pause();
+            if (fw) fw.pause();
+            updateAllAudioButtons(true, false);
           }
         };
 
@@ -1507,6 +1551,6 @@
     </footer>
   </main>
 
-  <script src="script.js?v=16"></script>
+  <script src="script.js?v=17"></script>
 </body>
 </html>
