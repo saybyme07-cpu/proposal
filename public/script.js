@@ -644,10 +644,10 @@ function initSayByMe() {
     if (summaryQuestion) summaryQuestion.textContent = question;
 
     const CELEB_LABELS = {
-      memories: "🌸 Little Memories",
+      memories: "💖 Cute GIFs",
       fireworks: "🎆 Heart Fireworks",
-      card: "🌸 Little Memories",
-      message: "🌸 Little Memories",
+      card: "💖 Cute GIFs",
+      message: "💖 Cute GIFs",
     };
     if (summaryCelebrationPills) {
       summaryCelebrationPills.innerHTML = celebrationQueue

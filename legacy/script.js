@@ -644,10 +644,10 @@ document.addEventListener("DOMContentLoaded", () => {
     summaryQuestion.textContent = question;
 
     const CELEB_LABELS = {
-      memories: "🌸 Little Memories",
+      memories: "💖 Cute GIFs",
       fireworks: "🎆 Heart Fireworks",
-      card: "🌸 Little Memories",
-      message: "🌸 Little Memories",
+      card: "💖 Cute GIFs",
+      message: "💖 Cute GIFs",
     };
     summaryCelebrationPills.innerHTML = celebrationQueue
       .map((c) => `<span class="celebPill">${CELEB_LABELS[c] || c}</span>`)

@@ -337,7 +337,7 @@ export function ProposalExperience({
               {/* Header Title */}
               <div style={{ textAlign: "center", padding: "0 16px", marginBottom: "4px" }}>
                 <h3 className="sbmHandTitle" style={{ fontSize: "25px", color: "#92364C", margin: 0 }}>
-                  Little Memories 🌸
+                  Cute GIFs 💖
                 </h3>
               </div>
 
@@ -417,7 +417,7 @@ export function ProposalExperience({
               {/* Romantic Quote */}
               <div style={{ padding: "0 18px", textAlign: "center", maxWidth: "310px", background: "transparent" }}>
                 <p className="sbmHandwriting" style={{ fontSize: "15px", color: "#92364C", lineHeight: "1.4", margin: 0 }}>
-                  “Every little moment, every shared smile, every heartbeat — your love story deserves to be as beautiful as these little memories. 💗”
+                  “Every little moment, every cute cuddle, every sweet heartbeat — your love story deserves to be celebrated with these adorable cute GIFs. 💗”
                 </p>
               </div>
 
