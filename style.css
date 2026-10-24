@@ -319,6 +319,19 @@ body {
   width: clamp(220px, 26vw, 420px);
 }
 
+.corner,
+.sway,
+.driftA,
+.driftB,
+.bob,
+.floaty,
+.sbm-rise-float {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 .sway {
   transform-box: fill-box;
   transform-origin: 20% 100%;
@@ -2622,18 +2635,8 @@ p.sbm-caret::after {
   z-index: 999999;
 }
 
-/* Inside phone screen button */
+/* Inside phone screen button - completely removed per user request so phone preview is clean */
 .sbmAudioToggle {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 120;
-  width: 38px;
-  height: 38px;
-}
-
-/* In recipient view, the fixed global button is present so hide the inner one */
-.recipient-view .sbmAudioToggle {
   display: none !important;
 }
 
