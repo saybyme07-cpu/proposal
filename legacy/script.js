@@ -474,16 +474,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof window === "undefined" || typeof Audio === "undefined") return;
     const basePath = window.location.pathname.includes("/legacy/") ? "audio/" : "/audio/";
     if (!bgmAudio) {
-      bgmAudio = new Audio(basePath + "bgm.mp3");
+      const testAudio = new Audio();
+      const canAac = Boolean(testAudio.canPlayType("audio/mp4; codecs=mp4a.40.2") || testAudio.canPlayType("audio/aac"));
+      const bgmSrc = canAac ? basePath + "bgm.m4a" : basePath + "bgm.mp3";
+      bgmAudio = new Audio(bgmSrc);
       bgmAudio.loop = true;
       bgmAudio.volume = 0.55;
       bgmAudio.preload = "auto";
+      try { bgmAudio.load(); } catch (e) {}
     }
     if (!fireworksAudio) {
       fireworksAudio = new Audio(basePath + "fireworks.mp3");
       fireworksAudio.loop = true; // Replays again and again until Finish click
       fireworksAudio.volume = 0.65;
       fireworksAudio.preload = "auto";
+      try { fireworksAudio.load(); } catch (e) {}
     }
   }
 
@@ -502,10 +507,18 @@ document.addEventListener("DOMContentLoaded", () => {
           if (currentAudioMode === "bgm" && !isAudioMuted && bgmAudio) {
             bgmAudio.play().then(() => updateAudioToggleUI()).catch(() => {});
           }
+          document.removeEventListener("pointerdown", unlockAudio);
+          document.removeEventListener("touchstart", unlockAudio);
+          document.removeEventListener("mousedown", unlockAudio);
+          document.removeEventListener("click", unlockAudio);
           window.removeEventListener("pointerdown", unlockAudio);
           window.removeEventListener("touchstart", unlockAudio);
           window.removeEventListener("click", unlockAudio);
         };
+        document.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
+        document.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
+        document.addEventListener("mousedown", unlockAudio, { once: true, passive: true });
+        document.addEventListener("click", unlockAudio, { once: true, passive: true });
         window.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
         window.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
         window.addEventListener("click", unlockAudio, { once: true, passive: true });
