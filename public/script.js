@@ -462,6 +462,108 @@ function initSayByMe() {
   const peFinaleTitle = document.getElementById("peFinaleTitle");
   const peFinaleSubtitle = document.getElementById("peFinaleSubtitle");
 
+  const sbmAudioToggle = document.getElementById("sbmAudioToggle");
+  const sbmAudioIcon = document.getElementById("sbmAudioIcon");
+
+  let bgmAudio = null;
+  let fireworksAudio = null;
+  let isAudioMuted = false;
+  let currentAudioMode = "idle"; // "idle" | "bgm" | "fireworks"
+
+  function initAudioElements() {
+    if (typeof window === "undefined" || typeof Audio === "undefined") return;
+    const basePath = window.location.pathname.includes("/legacy/") ? "audio/" : "/audio/";
+    if (!bgmAudio) {
+      bgmAudio = new Audio(basePath + "bgm.mp3");
+      bgmAudio.loop = true;
+      bgmAudio.volume = 0.55;
+      bgmAudio.preload = "auto";
+    }
+    if (!fireworksAudio) {
+      fireworksAudio = new Audio(basePath + "fireworks.mp3");
+      fireworksAudio.loop = true; // Replays again and again until Finish click
+      fireworksAudio.volume = 0.65;
+      fireworksAudio.preload = "auto";
+    }
+  }
+
+  function playBgm() {
+    initAudioElements();
+    currentAudioMode = "bgm";
+    if (fireworksAudio) {
+      fireworksAudio.pause();
+      fireworksAudio.currentTime = 0;
+    }
+    updateAudioToggleUI();
+    if (isAudioMuted || !bgmAudio) return;
+    const p = bgmAudio.play();
+    if (p && typeof p.then === "function") {
+      p.catch(() => {});
+    }
+  }
+
+  function playFireworksAudio() {
+    initAudioElements();
+    currentAudioMode = "fireworks";
+    if (bgmAudio) {
+      bgmAudio.pause();
+    }
+    updateAudioToggleUI();
+    if (isAudioMuted || !fireworksAudio) return;
+    fireworksAudio.currentTime = 0;
+    const p = fireworksAudio.play();
+    if (p && typeof p.then === "function") {
+      p.catch(() => {});
+    }
+  }
+
+  function toggleAudio() {
+    initAudioElements();
+    isAudioMuted = !isAudioMuted;
+    if (isAudioMuted) {
+      if (bgmAudio) bgmAudio.pause();
+      if (fireworksAudio) fireworksAudio.pause();
+    } else {
+      if (currentAudioMode === "fireworks") {
+        if (fireworksAudio) fireworksAudio.play().catch(() => {});
+      } else {
+        currentAudioMode = "bgm";
+        if (bgmAudio) bgmAudio.play().catch(() => {});
+      }
+    }
+    updateAudioToggleUI();
+  }
+
+  function updateAudioToggleUI() {
+    const icon = document.getElementById("sbmAudioIcon");
+    const btn = document.getElementById("sbmAudioToggle");
+    if (!icon || !btn) return;
+    if (isAudioMuted) {
+      icon.textContent = "🔇";
+      btn.classList.add("is-muted");
+      btn.classList.remove("is-playing");
+      btn.setAttribute("title", "Unmute music");
+    } else {
+      icon.textContent = "🔊";
+      btn.classList.remove("is-muted");
+      btn.classList.add("is-playing");
+      btn.setAttribute("title", "Mute music");
+    }
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      if (bgmAudio) bgmAudio.pause();
+      if (fireworksAudio) fireworksAudio.pause();
+    } else if (!isAudioMuted) {
+      if (currentAudioMode === "fireworks") {
+        if (fireworksAudio) fireworksAudio.play().catch(() => {});
+      } else if (currentAudioMode === "bgm") {
+        if (bgmAudio) bgmAudio.play().catch(() => {});
+      }
+    }
+  });
+
   const DEFAULT_MESSAGE = "I still remember the first time I heard you laugh — I knew it was a moment I'd keep. I still do. Every little thing about you matters to me. You're my favourite person.";
 
   const LETTER_SUGGESTIONS = [
@@ -1467,6 +1569,7 @@ function initSayByMe() {
   function showFireworksCelebration() {
     stopCardDeckAutoPlay();
     hideAllExperienceStages();
+    playFireworksAudio();
     if (!peCelebFireworks || !peFireworksCanvas) return;
 
     initFireworksStars();
@@ -1574,6 +1677,7 @@ function initSayByMe() {
   function handleOpenEnvelope() {
     if (isWelcomeOpening) return;
     isWelcomeOpening = true;
+    playBgm();
     peWelEnvelope.classList.add("is-open");
     peWelEnvelopeWrap.classList.remove("sbm-bob");
     peTapHint.style.opacity = "0";
@@ -1709,10 +1813,21 @@ function initSayByMe() {
       if (peStageFinale) {
         peStageFinale.style.display = "flex";
       }
+      playBgm();
     });
   }
 
-  btnReplayExperience.addEventListener("click", startProposalExperience);
+  if (sbmAudioToggle) {
+    sbmAudioToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleAudio();
+    });
+  }
+
+  btnReplayExperience.addEventListener("click", () => {
+    startProposalExperience();
+    playBgm();
+  });
 
   btnBackToEdit.addEventListener("click", () => {
     showStep5();
