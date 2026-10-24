@@ -14,11 +14,11 @@ export interface ProposalExperienceProps {
 }
 
 const CARDS_DATA = [
-  { img: "/images/card1_full.png", title: "Forever", quote: "With you, forever feels too short. 💖" },
-  { img: "/images/memory_2.jpg", title: "Every Moment", quote: "Every smile we share is my favourite memory. ✨" },
-  { img: "/images/memory_3.jpg", title: "My Whole World", quote: "You make ordinary days feel like poetry. 🌸" },
-  { img: "/images/memory_4.jpg", title: "Our Story", quote: "The sweetest chapter began the day I met you. 💌" },
-  { img: "/images/memory_5.jpg", title: "Always You", quote: "If I lived a thousand lives, I'd choose you in every one. 💗" },
+  { img: "/images/memory_1.gif", title: "Forever", quote: "With you, forever feels too short. 💖" },
+  { img: "/images/memory_2.gif", title: "Every Moment", quote: "Every smile we share is my favourite memory. ✨" },
+  { img: "/images/memory_3.gif", title: "My Whole World", quote: "You make ordinary days feel like poetry. 🌸" },
+  { img: "/images/memory_4.gif", title: "Our Story", quote: "The sweetest chapter began the day I met you. 💌" },
+  { img: "/images/memory_5.gif", title: "Always You", quote: "If I lived a thousand lives, I'd choose you in every one. 💗" },
 ];
 
 export function ProposalExperience({
