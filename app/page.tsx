@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <>
       <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-      <Script src="/script.js?v=8" strategy="afterInteractive" />
+      <Script src="/script.js?v=9" strategy="afterInteractive" />
     </>
   );
 }
