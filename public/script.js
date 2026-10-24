@@ -463,6 +463,7 @@ function initSayByMe() {
   const peFinaleSubtitle = document.getElementById("peFinaleSubtitle");
 
   const sbmAudioToggle = document.getElementById("sbmAudioToggle");
+  const sbmGlobalAudioBtn = document.getElementById("sbmGlobalAudioBtn");
   const sbmAudioIcon = document.getElementById("sbmAudioIcon");
 
   let bgmAudio = null;
@@ -471,30 +472,51 @@ function initSayByMe() {
   let currentAudioMode = "idle"; // "idle" | "bgm" | "fireworks"
 
   function initAudioElements() {
-    if (typeof window === "undefined" || typeof Audio === "undefined") return;
-    const basePath = window.location.pathname.includes("/legacy/") ? "audio/" : "/audio/";
-    if (!bgmAudio) {
-      const testAudio = new Audio();
-      const canAac = Boolean(testAudio.canPlayType("audio/mp4; codecs=mp4a.40.2") || testAudio.canPlayType("audio/aac"));
-      const bgmSrc = canAac ? basePath + "bgm.m4a" : basePath + "bgm.mp3";
-      bgmAudio = new Audio(bgmSrc);
-      bgmAudio.loop = true;
-      bgmAudio.volume = 0.55;
-      bgmAudio.preload = "auto";
-      try { bgmAudio.load(); } catch (e) {}
+    if (typeof window === "undefined") return;
+    if (window.__SBM_AUDIO__) {
+      isAudioMuted = window.__SBM_AUDIO__.muted;
+      if (window.__SBM_AUDIO__.mode) currentAudioMode = window.__SBM_AUDIO__.mode;
     }
+
+    if (!bgmAudio) {
+      bgmAudio = document.getElementById("sbmBgmElement");
+      if (!bgmAudio && typeof Audio !== "undefined") {
+        const basePath = window.location.pathname.includes("/legacy/") ? "audio/" : "/audio/";
+        const testAudio = new Audio();
+        const canAac = Boolean(testAudio.canPlayType("audio/mp4; codecs=mp4a.40.2") || testAudio.canPlayType("audio/aac"));
+        const bgmSrc = canAac ? basePath + "bgm.m4a" : basePath + "bgm.mp3";
+        bgmAudio = new Audio(bgmSrc);
+      }
+      if (bgmAudio) {
+        bgmAudio.loop = true;
+        bgmAudio.volume = 0.55;
+        bgmAudio.preload = "auto";
+        try { bgmAudio.load(); } catch (e) {}
+      }
+    }
+
     if (!fireworksAudio) {
-      fireworksAudio = new Audio(basePath + "fireworks.mp3");
-      fireworksAudio.loop = true; // Replays again and again until Finish click
-      fireworksAudio.volume = 0.65;
-      fireworksAudio.preload = "auto";
-      try { fireworksAudio.load(); } catch (e) {}
+      fireworksAudio = document.getElementById("sbmFireworksElement");
+      if (!fireworksAudio && typeof Audio !== "undefined") {
+        const basePath = window.location.pathname.includes("/legacy/") ? "audio/" : "/audio/";
+        fireworksAudio = new Audio(basePath + "fireworks.mp3");
+      }
+      if (fireworksAudio) {
+        fireworksAudio.loop = true; // Replays again and again until Finish click
+        fireworksAudio.volume = 0.65;
+        fireworksAudio.preload = "auto";
+        try { fireworksAudio.load(); } catch (e) {}
+      }
     }
   }
 
   function attemptAutoplayBgm() {
     initAudioElements();
     currentAudioMode = "bgm";
+    if (window.__SBM_AUDIO__) {
+      window.__SBM_AUDIO__.mode = "bgm";
+      isAudioMuted = window.__SBM_AUDIO__.muted;
+    }
     if (isAudioMuted || !bgmAudio) return;
 
     const p = bgmAudio.play();
@@ -502,26 +524,20 @@ function initSayByMe() {
       p.then(() => {
         updateAudioToggleUI();
       }).catch(() => {
-        // Autoplay policy prevented immediate playback without gesture
+        // Autoplay policy prevented immediate playback without gesture; unlock on first touch
         const unlockAudio = () => {
           if (currentAudioMode === "bgm" && !isAudioMuted && bgmAudio) {
             bgmAudio.play().then(() => updateAudioToggleUI()).catch(() => {});
           }
-          document.removeEventListener("pointerdown", unlockAudio);
-          document.removeEventListener("touchstart", unlockAudio);
-          document.removeEventListener("mousedown", unlockAudio);
-          document.removeEventListener("click", unlockAudio);
-          window.removeEventListener("pointerdown", unlockAudio);
-          window.removeEventListener("touchstart", unlockAudio);
-          window.removeEventListener("click", unlockAudio);
+          window.removeEventListener("pointerdown", unlockAudio, true);
+          window.removeEventListener("touchstart", unlockAudio, true);
+          window.removeEventListener("mousedown", unlockAudio, true);
+          window.removeEventListener("click", unlockAudio, true);
         };
-        document.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
-        document.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
-        document.addEventListener("mousedown", unlockAudio, { once: true, passive: true });
-        document.addEventListener("click", unlockAudio, { once: true, passive: true });
-        window.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
-        window.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
-        window.addEventListener("click", unlockAudio, { once: true, passive: true });
+        window.addEventListener("pointerdown", unlockAudio, { once: true, capture: true });
+        window.addEventListener("touchstart", unlockAudio, { once: true, capture: true });
+        window.addEventListener("mousedown", unlockAudio, { once: true, capture: true });
+        window.addEventListener("click", unlockAudio, { once: true, capture: true });
       });
     }
   }
@@ -529,6 +545,9 @@ function initSayByMe() {
   function playBgm() {
     initAudioElements();
     currentAudioMode = "bgm";
+    if (window.__SBM_AUDIO__) {
+      window.__SBM_AUDIO__.mode = "bgm";
+    }
     if (fireworksAudio) {
       fireworksAudio.pause();
       fireworksAudio.currentTime = 0;
@@ -544,6 +563,9 @@ function initSayByMe() {
   function playFireworksAudio() {
     initAudioElements();
     currentAudioMode = "fireworks";
+    if (window.__SBM_AUDIO__) {
+      window.__SBM_AUDIO__.mode = "fireworks";
+    }
     if (bgmAudio) {
       bgmAudio.pause();
     }
@@ -552,13 +574,25 @@ function initSayByMe() {
     fireworksAudio.currentTime = 0;
     const p = fireworksAudio.play();
     if (p && typeof p.then === "function") {
-      p.catch(() => {});
+      p.then(() => updateAudioToggleUI()).catch(() => {});
     }
   }
 
   function toggleAudio() {
     initAudioElements();
+    if (typeof window.__sbmToggleAudio === "function") {
+      window.__sbmToggleAudio();
+      if (window.__SBM_AUDIO__) {
+        isAudioMuted = window.__SBM_AUDIO__.muted;
+        currentAudioMode = window.__SBM_AUDIO__.mode;
+      }
+      updateAudioToggleUI();
+      return;
+    }
     isAudioMuted = !isAudioMuted;
+    if (window.__SBM_AUDIO__) {
+      window.__SBM_AUDIO__.muted = isAudioMuted;
+    }
     if (isAudioMuted) {
       if (bgmAudio) bgmAudio.pause();
       if (fireworksAudio) fireworksAudio.pause();
@@ -574,19 +608,29 @@ function initSayByMe() {
   }
 
   function updateAudioToggleUI() {
+    if (window.__SBM_AUDIO__) {
+      isAudioMuted = window.__SBM_AUDIO__.muted;
+    }
+    const isPlaying = !isAudioMuted && (
+      (currentAudioMode === "bgm" && bgmAudio && !bgmAudio.paused) ||
+      (currentAudioMode === "fireworks" && fireworksAudio && !fireworksAudio.paused)
+    );
+
+    document.querySelectorAll(".sbmGlobalAudioBtn, .sbmAudioToggle").forEach((btn) => {
+      if (isAudioMuted) {
+        btn.classList.add("is-muted");
+        btn.classList.remove("is-playing");
+        btn.setAttribute("title", "Unmute music");
+      } else {
+        btn.classList.remove("is-muted");
+        if (isPlaying) btn.classList.add("is-playing");
+        btn.setAttribute("title", "Mute music");
+      }
+    });
+
     const icon = document.getElementById("sbmAudioIcon");
-    const btn = document.getElementById("sbmAudioToggle");
-    if (!icon || !btn) return;
-    if (isAudioMuted) {
-      icon.textContent = "🔇";
-      btn.classList.add("is-muted");
-      btn.classList.remove("is-playing");
-      btn.setAttribute("title", "Unmute music");
-    } else {
-      icon.textContent = "🔊";
-      btn.classList.remove("is-muted");
-      btn.classList.add("is-playing");
-      btn.setAttribute("title", "Mute music");
+    if (icon) {
+      icon.textContent = isAudioMuted ? "🔇" : "🔊";
     }
   }
 
@@ -1860,6 +1904,13 @@ function initSayByMe() {
 
   if (sbmAudioToggle) {
     sbmAudioToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleAudio();
+    });
+  }
+
+  if (sbmGlobalAudioBtn) {
+    sbmGlobalAudioBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       toggleAudio();
     });

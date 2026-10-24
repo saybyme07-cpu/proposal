@@ -1,4 +1,108 @@
 <main class="page">
+    <!-- Global Floating Audio Toggle Button (Matches reference image, fixed on all pages/steps) -->
+    <button type="button" class="sbmGlobalAudioBtn" id="sbmGlobalAudioBtn" aria-label="Toggle music" title="Toggle music">
+      <svg class="sbmSvgSpeakerOn" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+        <path class="sbmSoundWave" d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+        <path class="sbmSoundWave" d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+      </svg>
+      <svg class="sbmSvgSpeakerOff" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+        <line x1="22" y1="9" x2="16" y2="15" />
+        <line x1="16" y1="9" x2="22" y2="15" />
+      </svg>
+    </button>
+
+    <!-- Native Preloaded Audio Elements for Instant 0-Delay Playback -->
+    <audio id="sbmBgmElement" src="/audio/bgm.m4a" loop preload="auto" playsinline></audio>
+    <audio id="sbmFireworksElement" src="/audio/fireworks.mp3" loop preload="auto" playsinline></audio>
+
+    <script>
+      (function() {
+        window.__SBM_AUDIO__ = window.__SBM_AUDIO__ || { muted: false, mode: 'bgm' };
+        var bgm = document.getElementById('sbmBgmElement');
+        if (bgm) {
+          bgm.volume = 0.55;
+          try { bgm.load(); } catch(e) {}
+        }
+
+        function updateAllAudioButtons(muted, playing) {
+          var btns = document.querySelectorAll('.sbmGlobalAudioBtn, .sbmAudioToggle');
+          btns.forEach(function(btn) {
+            if (muted) {
+              btn.classList.add('is-muted');
+              btn.classList.remove('is-playing');
+              btn.setAttribute('title', 'Unmute music');
+            } else {
+              btn.classList.remove('is-muted');
+              if (playing) btn.classList.add('is-playing');
+              btn.setAttribute('title', 'Mute music');
+            }
+          });
+        }
+
+        function tryPlayBgmInstantly() {
+          if (!bgm || window.__SBM_AUDIO__.muted) return;
+          var p = bgm.play();
+          if (p && p.then) {
+            p.then(function() {
+              updateAllAudioButtons(false, true);
+            }).catch(function() {
+              // Autoplay waiting for user gesture
+            });
+          }
+        }
+
+        // 1. Play immediately as page is loading
+        tryPlayBgmInstantly();
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', tryPlayBgmInstantly, { once: true });
+        }
+
+        // 2. Play on very first screen touch/click with zero delay (capture phase)
+        function unlockImmediately() {
+          tryPlayBgmInstantly();
+          window.removeEventListener('pointerdown', unlockImmediately, true);
+          window.removeEventListener('touchstart', unlockImmediately, true);
+          window.removeEventListener('mousedown', unlockImmediately, true);
+        }
+        window.addEventListener('pointerdown', unlockImmediately, true);
+        window.addEventListener('touchstart', unlockImmediately, true);
+        window.addEventListener('mousedown', unlockImmediately, true);
+
+        // 3. Global toggle function
+        window.__sbmToggleAudio = function() {
+          var s = window.__SBM_AUDIO__;
+          s.muted = !s.muted;
+          var fw = document.getElementById('sbmFireworksElement');
+          if (s.muted) {
+            if (bgm) bgm.pause();
+            if (fw) fw.pause();
+            updateAllAudioButtons(true, false);
+          } else {
+            if (s.mode === 'fireworks' && fw) {
+              fw.play().catch(function() {});
+              updateAllAudioButtons(false, true);
+            } else {
+              s.mode = 'bgm';
+              if (bgm) bgm.play().catch(function() {});
+              updateAllAudioButtons(false, true);
+            }
+          }
+        };
+
+        // 4. Delegate button clicks so they work instantly even before external scripts load
+        document.addEventListener('click', function(e) {
+          var btn = e.target && e.target.closest ? e.target.closest('.sbmGlobalAudioBtn, .sbmAudioToggle') : null;
+          if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.__sbmToggleAudio();
+          }
+        }, true);
+      })();
+    </script>
+
     <!-- Left Watercolor Cloud Corner -->
     <div class="corner cl" aria-hidden="true">
       <svg viewBox="0 0 582 648" preserveAspectRatio="xMinYMax meet">
@@ -956,7 +1060,16 @@
 
               <!-- Floating Speaker/Mute Button -->
               <button type="button" class="sbmAudioToggle" id="sbmAudioToggle" aria-label="Mute or unmute music" title="Toggle music">
-                <span class="sbmAudioIcon" id="sbmAudioIcon">🔊</span>
+                <svg class="sbmSvgSpeakerOn" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path class="sbmSoundWave" d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <path class="sbmSoundWave" d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+                <svg class="sbmSvgSpeakerOff" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <line x1="22" y1="9" x2="16" y2="15" />
+                  <line x1="16" y1="9" x2="22" y2="15" />
+                </svg>
               </button>
 
               <!-- Proposal Experience Container -->

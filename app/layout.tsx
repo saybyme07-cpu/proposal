@@ -28,6 +28,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Itim&family=Quicksand:wght@500;600;700&display=swap"
           rel="stylesheet"
         />
+        <link rel="preload" href="/audio/bgm.m4a" as="audio" type="audio/mp4" />
         <link rel="preload" href="/audio/bgm.m4a" as="fetch" crossOrigin="anonymous" />
       </head>
       <body suppressHydrationWarning>
