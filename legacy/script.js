@@ -913,8 +913,8 @@ document.addEventListener("DOMContentLoaded", () => {
   /* SAYBYME FIREWORKS ENGINE (CANVAS 2D PHYSICS, ADDITIVE BLENDING)    */
   /* ------------------------------------------------------------------ */
   const TAU = Math.PI * 2;
-  const MAX_PARTICLES = 1900;
-  const TRAIL = 8;
+  const MAX_PARTICLES = 650;
+  const TRAIL = 4;
   const GOLD = "#FFD9A0";
   const CREAM = "#FFE9C7";
 
@@ -988,10 +988,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const r = this.canvas.getBoundingClientRect();
       this.w = Math.max(1, Math.round(r.width));
       this.h = Math.max(1, Math.round(r.height));
-      this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // DPR capped at 1.25 to prevent fill-rate lag on high-DPI retina displays
+      this.dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       this.canvas.width = Math.round(this.w * this.dpr);
       this.canvas.height = Math.round(this.h * this.dpr);
-      this.scale = clamp(Math.min(this.w, this.h * 0.55) / 340, 0.65, 1.7);
+      this.scale = clamp(Math.min(this.w, this.h * 0.55) / 340, 0.65, 1.4);
     }
 
     start() {
@@ -1070,8 +1071,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     finale() {
-      [0.15, 0.32, 0.5, 0.68, 0.85].forEach((fx, i) =>
-        this.schedule(i * 0.16, () =>
+      [0.15, 0.35, 0.55, 0.75, 0.95].forEach((fx, i) =>
+        this.schedule(i * 0.22, () =>
           this.launch({
             x: this.w * fx,
             y: this.h * (0.2 + 0.1 * (i % 2)),
@@ -1079,11 +1080,11 @@ document.addEventListener("DOMContentLoaded", () => {
           })
         )
       );
-      this.schedule(1.1, () =>
+      this.schedule(1.3, () =>
         this.launch({ x: this.w * 0.5, y: this.h * 0.27, kind: "double-heart", big: true })
       );
-      [0.2, 0.8].forEach((fx) =>
-        this.schedule(1.4, () =>
+      [0.25, 0.75].forEach((fx) =>
+        this.schedule(1.65, () =>
           this.launch({ x: this.w * fx, y: this.h * 0.33, kind: "crackle" })
         )
       );
@@ -1135,7 +1136,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const S = this.scale;
       const lambda = o.lambda !== undefined ? o.lambda : 2.3;
       const jitter = o.jitter !== undefined ? o.jitter : 0.02;
-      const lifeRange = o.life || [1.6, 2.1];
+      const lifeRange = o.life || [1.5, 2.0];
       for (let i = 0; i < n; i++) {
         const [ux, uy] = outline((i / n) * TAU + rand(-0.01, 0.01));
         const j = 1 + rand(-jitter, jitter);
@@ -1144,7 +1145,7 @@ document.addEventListener("DOMContentLoaded", () => {
           vx: ux * radius * lambda * j,
           vy: uy * radius * lambda * j,
           life: rand(lifeRange[0], lifeRange[1]),
-          size: (o.size !== undefined ? o.size : 2.4) * S,
+          size: (o.size !== undefined ? o.size : 2.2) * S,
           color: typeof o.color === "function" ? o.color() : o.color,
           drag: lambda,
           gravity: (o.gravity !== undefined ? o.gravity : 55) * S,
@@ -1158,43 +1159,43 @@ document.addEventListener("DOMContentLoaded", () => {
       const c1 = pick(this.palette);
       const c2 = pick(this.palette.filter((c) => c !== c1)) || c1;
 
-      this.flashes.push({ x, y, r: 150 * S, age: 0, life: 0.5, color: c1 });
-      this.rings.push({ x, y, max: 130 * S, age: 0, life: 0.6, color: c1 });
+      this.flashes.push({ x, y, r: 130 * S, age: 0, life: 0.45, color: c1 });
+      this.rings.push({ x, y, max: 120 * S, age: 0, life: 0.55, color: c1 });
 
       switch (kind) {
         case "heart":
-          this.shape(x, y, heartOutline, 84, 92 * S, { color: c1 });
-          this.shape(x, y, discOutline, 26, 48 * S, { color: "#FFFFFF", life: [0.7, 1.1], size: 1.6, flicker: true });
+          this.shape(x, y, heartOutline, 54, 92 * S, { color: c1 });
+          this.shape(x, y, discOutline, 16, 44 * S, { color: "#FFFFFF", life: [0.6, 1.0], size: 1.5, flicker: true });
           break;
         case "double-heart":
-          this.shape(x, y, heartOutline, 84, 96 * S, { color: c1 });
-          this.shape(x, y, heartOutline, 54, 52 * S, { color: c2, life: [1.4, 1.8] });
-          this.shape(x, y, discOutline, 22, 30 * S, { color: "#FFFFFF", life: [0.6, 0.9], size: 1.5, flicker: true });
+          this.shape(x, y, heartOutline, 52, 96 * S, { color: c1 });
+          this.shape(x, y, heartOutline, 34, 52 * S, { color: c2, life: [1.3, 1.7] });
+          this.shape(x, y, discOutline, 14, 28 * S, { color: "#FFFFFF", life: [0.5, 0.8], size: 1.4, flicker: true });
           break;
         case "peony":
-          this.shape(x, y, discOutline, 120, 118 * S, {
+          this.shape(x, y, discOutline, 65, 118 * S, {
             color: () => (Math.random() < 0.75 ? c1 : "#FFFFFF"),
-            lambda: 1.9, jitter: 0, life: [1.5, 2.2], gravity: 60,
+            lambda: 1.9, jitter: 0, life: [1.4, 2.0], gravity: 60,
           });
           break;
         case "ring":
-          this.shape(x, y, circleOutline, 72, 108 * S, { color: c1, lambda: 2.1 });
-          this.shape(x, y, circleOutline, 40, 64 * S, { color: c2, lambda: 2.1, life: [1.3, 1.7] });
+          this.shape(x, y, circleOutline, 46, 108 * S, { color: c1, lambda: 2.1 });
+          this.shape(x, y, circleOutline, 26, 64 * S, { color: c2, lambda: 2.1, life: [1.2, 1.6] });
           break;
         case "star":
-          this.shape(x, y, starOutline, 110, 118 * S, { color: c1, lambda: 2.2, jitter: 0.01 });
-          this.shape(x, y, discOutline, 20, 40 * S, { color: GOLD, life: [0.8, 1.2], size: 1.7, flicker: true });
+          this.shape(x, y, starOutline, 64, 118 * S, { color: c1, lambda: 2.2, jitter: 0.01 });
+          this.shape(x, y, discOutline, 14, 38 * S, { color: GOLD, life: [0.7, 1.1], size: 1.6, flicker: true });
           break;
         case "willow":
-          this.shape(x, y, discOutline, 64, 120 * S, {
+          this.shape(x, y, discOutline, 40, 118 * S, {
             color: () => (Math.random() < 0.6 ? GOLD : CREAM),
-            lambda: 1.1, jitter: 0, life: [2.6, 3.4], gravity: 75, trail: TRAIL, size: 2.2,
+            lambda: 1.1, jitter: 0, life: [2.4, 3.1], gravity: 72, trail: TRAIL, size: 2.1,
           });
           break;
         case "crackle":
-          this.shape(x, y, discOutline, 70, 115 * S, {
+          this.shape(x, y, discOutline, 42, 112 * S, {
             color: () => (Math.random() < 0.5 ? "#FFFFFF" : GOLD),
-            lambda: 1.8, jitter: 0, life: [1.2, 1.7], size: 2, crackle: true,
+            lambda: 1.8, jitter: 0, life: [1.1, 1.5], size: 1.9, crackle: true,
           });
           break;
       }
@@ -1216,8 +1217,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // auto show
       if (this.auto && this.time >= this.nextAuto) {
         this.launch({});
-        if (Math.random() < 0.3) this.launch({});
-        this.nextAuto = this.time + rand(0.7, 1.5);
+        if (Math.random() < 0.25) this.launch({});
+        this.nextAuto = this.time + rand(1.0, 1.8);
       }
 
       // rockets
@@ -1227,13 +1228,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const t = Math.min(r.age, r.dur);
         r.px = r.x0 + r.vx * t;
         r.py = r.y0 + r.vy * t + 0.5 * r.g * t * t;
-        r.acc += dt * 70;
+        // Controlled spark generation (24 sparks/sec) to avoid particle starvation
+        r.acc += dt * 24;
         while (r.acc >= 1) {
           r.acc -= 1;
           this.spawn({
             x: r.px + rand(-1.5, 1.5), y: r.py,
-            vx: rand(-18, 18) * S, vy: rand(10, 50) * S,
-            life: rand(0.35, 0.7), size: 1.5 * S, color: GOLD,
+            vx: rand(-15, 15) * S, vy: rand(10, 45) * S,
+            life: rand(0.3, 0.6), size: 1.4 * S, color: GOLD,
             drag: 1.5, gravity: 60 * S, flicker: true,
           });
         }
@@ -1258,10 +1260,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (p.age >= p.life) {
           if (p.crackle) {
-            for (let j = 0; j < 3; j++) {
+            for (let j = 0; j < 2; j++) {
               this.spawn({
-                x: p.x, y: p.y, vx: rand(-45, 45) * S, vy: rand(-45, 45) * S,
-                life: rand(0.25, 0.5), size: 1.3 * S,
+                x: p.x, y: p.y, vx: rand(-40, 40) * S, vy: rand(-40, 40) * S,
+                life: rand(0.2, 0.4), size: 1.2 * S,
                 color: Math.random() < 0.5 ? "#FFFFFF" : CREAM,
                 drag: 3, gravity: 40 * S, flicker: true,
               });
@@ -1288,18 +1290,19 @@ document.addEventListener("DOMContentLoaded", () => {
       let s = this.sprites.get(color);
       if (s) return s;
       s = document.createElement("canvas");
-      s.width = s.height = 64;
+      // 32x32 sprite is 4x lighter in fill-rate than 64x64 while preserving smooth glow
+      s.width = s.height = 32;
       const g = s.getContext("2d");
       if (!g) return s;
       const n = parseInt(color.slice(1), 16);
       const rgb = `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
-      const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      const grad = g.createRadialGradient(16, 16, 0, 16, 16, 16);
       grad.addColorStop(0, "rgba(255,255,255,1)");
-      grad.addColorStop(0.16, `rgba(${rgb},0.95)`);
-      grad.addColorStop(0.45, `rgba(${rgb},0.3)`);
+      grad.addColorStop(0.2, `rgba(${rgb},0.95)`);
+      grad.addColorStop(0.5, `rgba(${rgb},0.3)`);
       grad.addColorStop(1, `rgba(${rgb},0)`);
       g.fillStyle = grad;
-      g.fillRect(0, 0, 64, 64);
+      g.fillRect(0, 0, 32, 32);
       this.sprites.set(color, s);
       return s;
     }
@@ -1312,23 +1315,23 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.globalCompositeOperation = "lighter";
       ctx.lineCap = "round";
 
-      // burst flashes (light the sky)
-      for (const f of this.flashes) {
-        const t = f.age / f.life;
-        const r = f.r * (0.6 + 0.4 * t);
-        ctx.globalAlpha = Math.max(0, (1 - t) ** 2 * 0.5);
-        ctx.drawImage(this.sprite(f.color), f.x - r, f.y - r, r * 2, r * 2);
-      }
-
       // shock rings
       for (const g of this.rings) {
         const t = g.age / g.life;
-        ctx.globalAlpha = Math.max(0, (1 - t) * 0.45);
+        ctx.globalAlpha = Math.max(0, (1 - t) * 0.4);
         ctx.strokeStyle = g.color;
         ctx.lineWidth = 1.5 * S;
         ctx.beginPath();
         ctx.arc(g.x, g.y, g.max * (1 - (1 - t) ** 3), 0, TAU);
         ctx.stroke();
+      }
+
+      // burst flashes (light the sky)
+      for (const f of this.flashes) {
+        const t = f.age / f.life;
+        const r = f.r * (0.6 + 0.4 * t);
+        ctx.globalAlpha = Math.max(0, (1 - t) ** 2 * 0.45);
+        ctx.drawImage(this.sprite(f.color), f.x - r, f.y - r, r * 2, r * 2);
       }
 
       // rockets
@@ -1343,40 +1346,42 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.lineTo(r.px - r.vx * 0.035, r.py - vy * 0.035);
         ctx.stroke();
         ctx.globalAlpha = 1;
-        const d = 13 * S;
+        const d = 11 * S;
         ctx.drawImage(this.sprite("#FFE9C7"), r.px - d / 2, r.py - d / 2, d, d);
       }
 
-      // particles
-      for (const p of this.live) {
-        const lf = 1 - p.age / p.life;
-        let a = Math.pow(Math.max(lf, 0), 0.8);
-        if (p.flicker) a *= 0.55 + 0.45 * Math.sin(p.age * 38 + p.seed);
-        if (a <= 0.01) continue;
-
-        if (p.trail > 0) {
+      // Pass 1: Batched trails for willow / sparkler particles (single contiguous polyline per particle)
+      for (let i = 0; i < this.live.length; i++) {
+        const p = this.live[i];
+        if (p.trail > 1) {
+          const lf = 1 - p.age / p.life;
+          if (lf <= 0.01) continue;
           ctx.strokeStyle = p.color;
-          for (let k = 0; k < p.trail - 1; k++) {
-            const f = 1 - k / p.trail;
-            ctx.globalAlpha = a * f * 0.6;
-            ctx.lineWidth = Math.max(0.6, p.size * f * 0.9);
-            ctx.beginPath();
-            ctx.moveTo(p.tx[k], p.ty[k]);
-            ctx.lineTo(p.tx[k + 1], p.ty[k + 1]);
-            ctx.stroke();
-          }
-        } else if (p.vx * p.vx + p.vy * p.vy > (70 * S) ** 2) {
-          ctx.globalAlpha = a * 0.5;
-          ctx.strokeStyle = p.color;
-          ctx.lineWidth = p.size * 0.7;
+          ctx.globalAlpha = lf * 0.55;
+          ctx.lineWidth = Math.max(0.7, p.size * 0.75);
           ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(p.x - p.vx * 0.018, p.y - p.vy * 0.018);
+          ctx.moveTo(p.tx[0], p.ty[0]);
+          for (let k = 1; k < p.trail; k++) {
+            ctx.lineTo(p.tx[k], p.ty[k]);
+          }
           ctx.stroke();
         }
+      }
 
-        ctx.globalAlpha = a;
-        const d = p.size * 5.2 * (0.5 + 0.5 * lf);
+      // Pass 2: Particle glow sprites
+      for (let i = 0; i < this.live.length; i++) {
+        const p = this.live[i];
+        const lf = 1 - p.age / p.life;
+        if (lf <= 0.01) continue;
+
+        let a = lf;
+        if (p.flicker) {
+          a *= 0.55 + 0.45 * Math.sin(p.age * 38 + p.seed);
+        }
+        if (a <= 0.02) continue;
+
+        ctx.globalAlpha = Math.min(1, a);
+        const d = p.size * 4.2 * (0.6 + 0.4 * lf);
         ctx.drawImage(this.sprite(p.color), p.x - d / 2, p.y - d / 2, d, d);
       }
 
