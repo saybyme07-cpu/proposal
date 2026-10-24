@@ -793,9 +793,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let deckAnimId = null;
   let deckResumeTimer = null;
   let autoScrollPaused = false;
-  let isDeckDragging = false;
-  let deckStartX = 0;
-  let deckStartScroll = 0;
+  let isTouching = false;
+  let isPointerDragging = false;
+  let pointerStartX = 0;
+  let pointerStartScroll = 0;
+  let subpixelScroll = 0;
+  let lastFrameTime = performance.now();
+  let isDeckInitialized = false;
 
   function getSingleSetWidth() {
     if (!cardDeck) return 0;
@@ -803,11 +807,48 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cards.length >= 6) {
       return cards[5].offsetLeft - cards[0].offsetLeft;
     }
-    return cardDeck.scrollWidth / 2;
+    return cardDeck.scrollWidth / 3;
+  }
+
+  function handleInfiniteWrap() {
+    if (!cardDeck || isTouching || isPointerDragging) return;
+    const setWidth = getSingleSetWidth();
+    if (setWidth <= 0) return;
+
+    // 3 identical sets of 5 cards (Set 1: [0..4], Set 2: [5..9], Set 3: [10..14])
+    // The middle set spans [setWidth, setWidth * 2)
+    // Only wrap when user reaches near the outer bounds of Set 1 or Set 3
+    if (cardDeck.scrollLeft >= setWidth * 2) {
+      cardDeck.scrollLeft -= setWidth;
+      subpixelScroll = cardDeck.scrollLeft;
+    } else if (cardDeck.scrollLeft <= 10) {
+      cardDeck.scrollLeft += setWidth;
+      subpixelScroll = cardDeck.scrollLeft;
+    }
+  }
+
+  function scheduleResume() {
+    if (deckResumeTimer) clearTimeout(deckResumeTimer);
+    deckResumeTimer = setTimeout(() => {
+      autoScrollPaused = false;
+      lastFrameTime = performance.now();
+      if (cardDeck) subpixelScroll = cardDeck.scrollLeft;
+    }, 2800);
   }
 
   function initCardDeck() {
-    if (!cardDeck) return;
+    if (!cardDeck || isDeckInitialized) return;
+    isDeckInitialized = true;
+
+    // Center on middle set (Set 2) on start so user has infinite buffer in both directions
+    requestAnimationFrame(() => {
+      const setWidth = getSingleSetWidth();
+      if (setWidth > 0) {
+        cardDeck.scrollLeft = setWidth;
+        subpixelScroll = setWidth;
+      }
+      updateActiveDot();
+    });
 
     // Dot click navigation
     if (deckDotsContainer) {
@@ -817,76 +858,95 @@ document.addEventListener("DOMContentLoaded", () => {
           autoScrollPaused = true;
           if (deckResumeTimer) clearTimeout(deckResumeTimer);
           const cards = cardDeck.querySelectorAll(".sbmDeckCard");
-          if (cards[idx]) {
-            const targetLeft = cards[idx].offsetLeft - (cardDeck.offsetWidth - cards[idx].offsetWidth) / 2;
+          // Target middle set card so user has smooth buffer both ways
+          const targetCard = cards[5 + idx];
+          if (targetCard) {
+            const targetLeft = targetCard.offsetLeft - (cardDeck.offsetWidth - targetCard.offsetWidth) / 2;
             cardDeck.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" });
+            subpixelScroll = targetLeft;
           }
-          deckResumeTimer = setTimeout(() => {
-            autoScrollPaused = false;
-          }, 2500);
+          scheduleResume();
         });
       });
     }
 
-    // Touch & Mouse Drag Handlers
-    const onDragStart = (e) => {
-      isDeckDragging = true;
+    // Touch events for mobile phones: let native hardware-accelerated momentum scroll do the work
+    cardDeck.addEventListener("touchstart", () => {
+      isTouching = true;
       autoScrollPaused = true;
       if (deckResumeTimer) clearTimeout(deckResumeTimer);
-      deckStartX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-      deckStartScroll = cardDeck.scrollLeft;
+    }, { passive: true });
+
+    cardDeck.addEventListener("touchend", () => {
+      isTouching = false;
+      scheduleResume();
+      // Re-center if reached edge once user finishes dragging
+      setTimeout(() => {
+        if (!isTouching && !isPointerDragging) {
+          handleInfiniteWrap();
+        }
+      }, 150);
+    }, { passive: true });
+
+    cardDeck.addEventListener("touchcancel", () => {
+      isTouching = false;
+      scheduleResume();
+    }, { passive: true });
+
+    // Scroll listener: syncs active dot and smoothly debounces wrap-around
+    let scrollDebounce = null;
+    cardDeck.addEventListener("scroll", () => {
+      subpixelScroll = cardDeck.scrollLeft;
+      updateActiveDot();
+
+      if (scrollDebounce) clearTimeout(scrollDebounce);
+      scrollDebounce = setTimeout(() => {
+        if (!isTouching && !isPointerDragging) {
+          handleInfiniteWrap();
+        }
+      }, 120);
+    }, { passive: true });
+
+    // Mouse drag handlers for desktop users only
+    const onMouseDown = (e) => {
+      isPointerDragging = true;
+      autoScrollPaused = true;
+      if (deckResumeTimer) clearTimeout(deckResumeTimer);
+      pointerStartX = e.clientX;
+      pointerStartScroll = cardDeck.scrollLeft;
       cardDeck.classList.add("is-dragging");
     };
 
-    const onDragMove = (e) => {
-      if (!isDeckDragging) return;
-      const x = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-      const walk = (deckStartX - x);
-      cardDeck.scrollLeft = deckStartScroll + walk;
-
-      const setWidth = getSingleSetWidth();
-      if (setWidth > 0) {
-        if (cardDeck.scrollLeft >= setWidth) {
-          cardDeck.scrollLeft -= setWidth;
-          deckStartScroll -= setWidth;
-        } else if (cardDeck.scrollLeft <= 0) {
-          cardDeck.scrollLeft += setWidth;
-          deckStartScroll += setWidth;
-        }
-      }
+    const onMouseMove = (e) => {
+      if (!isPointerDragging) return;
+      const walk = (pointerStartX - e.clientX);
+      cardDeck.scrollLeft = pointerStartScroll + walk;
+      subpixelScroll = cardDeck.scrollLeft;
+      handleInfiniteWrap();
+      updateActiveDot();
     };
 
-    const onDragEnd = () => {
-      if (!isDeckDragging) return;
-      isDeckDragging = false;
+    const onMouseUp = () => {
+      if (!isPointerDragging) return;
+      isPointerDragging = false;
       cardDeck.classList.remove("is-dragging");
-      if (deckResumeTimer) clearTimeout(deckResumeTimer);
-      deckResumeTimer = setTimeout(() => {
-        autoScrollPaused = false;
-      }, 1500);
+      scheduleResume();
     };
 
-    cardDeck.addEventListener("mousedown", onDragStart);
-    window.addEventListener("mousemove", onDragMove);
-    window.addEventListener("mouseup", onDragEnd);
-
-    cardDeck.addEventListener("touchstart", onDragStart, { passive: true });
-    cardDeck.addEventListener("touchmove", onDragMove, { passive: true });
-    cardDeck.addEventListener("touchend", onDragEnd, { passive: true });
-    cardDeck.addEventListener("touchcancel", onDragEnd, { passive: true });
+    cardDeck.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
   }
 
   function updateActiveDot() {
     if (!cardDeck || !deckDotsContainer) return;
-    const cards = cardDeck.querySelectorAll(".sbmDeckCard");
-    if (!cards.length) return;
-
     const setWidth = getSingleSetWidth();
     if (setWidth <= 0) return;
 
-    const normalizedScroll = cardDeck.scrollLeft % setWidth;
+    // Normalize relative to 5 cards per set
+    const normalizedScroll = ((cardDeck.scrollLeft % setWidth) + setWidth) % setWidth;
     const cardWidthWithGap = setWidth / 5;
-    const activeIdx = Math.round(normalizedScroll / cardWidthWithGap) % 5;
+    const activeIdx = Math.floor((normalizedScroll + cardWidthWithGap * 0.5) / cardWidthWithGap) % 5;
 
     const dots = deckDotsContainer.querySelectorAll(".sbmDeckDot");
     dots.forEach((dot, idx) => {
@@ -901,17 +961,26 @@ document.addEventListener("DOMContentLoaded", () => {
   function startCardDeckAutoPlay() {
     stopCardDeckAutoPlay();
     autoScrollPaused = false;
-    const speed = 0.8; // Smooth, gentle right-to-left scrolling
+    lastFrameTime = performance.now();
+    if (cardDeck) subpixelScroll = cardDeck.scrollLeft;
+    const speed = 40; // 40 pixels per second = silky smooth continuous glide
 
-    const step = () => {
+    const step = (time) => {
       if (peStageAfterYes && peStageAfterYes.style.display !== "none") {
-        if (!autoScrollPaused && !isDeckDragging && cardDeck) {
-          cardDeck.scrollLeft += speed;
+        const dt = Math.min((time - lastFrameTime) / 1000, 0.05);
+        lastFrameTime = time;
+
+        if (!autoScrollPaused && !isPointerDragging && !isTouching && cardDeck) {
+          subpixelScroll += speed * dt;
           const setWidth = getSingleSetWidth();
-          if (setWidth > 0 && cardDeck.scrollLeft >= setWidth) {
-            cardDeck.scrollLeft -= setWidth;
+          if (setWidth > 0 && subpixelScroll >= setWidth * 2) {
+            subpixelScroll -= setWidth;
           }
+          cardDeck.scrollLeft = subpixelScroll;
+        } else if (cardDeck) {
+          subpixelScroll = cardDeck.scrollLeft;
         }
+
         updateActiveDot();
         deckAnimId = requestAnimationFrame(step);
       } else {
