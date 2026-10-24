@@ -482,6 +482,32 @@ function initSayByMe() {
   let fireworksRo = null;
   let fireworksVisHandler = null;
 
+  function updateBear(pos) {
+    if (!bearContainer) return;
+    if (window.innerWidth <= 900) {
+      bearContainer.style.display = "none";
+      bearContainer.classList.remove("bearLeft");
+      return;
+    }
+    if (pos === "left") {
+      bearContainer.style.display = "block";
+      bearContainer.classList.add("bearLeft");
+    } else if (pos === "right") {
+      bearContainer.style.display = "block";
+      bearContainer.classList.remove("bearLeft");
+    } else {
+      bearContainer.style.display = "none";
+      bearContainer.classList.remove("bearLeft");
+    }
+  }
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth <= 900 && bearContainer) {
+      bearContainer.style.display = "none";
+      bearContainer.classList.remove("bearLeft");
+    }
+  });
+
   function showStep1() {
     step1.style.display = "flex";
     step2.style.display = "none";
@@ -489,8 +515,7 @@ function initSayByMe() {
     step4.style.display = "none";
     step5.style.display = "none";
     step7.style.display = "none";
-    bearContainer.style.display = "none";
-    bearContainer.classList.remove("bearLeft");
+    updateBear("none");
     renderBackgroundHearts(HEARTS_STEP1);
     window.history.replaceState(null, "", window.location.pathname);
   }
@@ -502,8 +527,7 @@ function initSayByMe() {
     step4.style.display = "none";
     step5.style.display = "none";
     step7.style.display = "none";
-    bearContainer.style.display = "block";
-    bearContainer.classList.remove("bearLeft");
+    updateBear("right");
     renderBackgroundHearts(HEARTS_STEP2);
     recipientInput.focus();
     const query = fromName ? `?name=${encodeURIComponent(fromName)}` : "";
@@ -517,8 +541,7 @@ function initSayByMe() {
     step4.style.display = "none";
     step5.style.display = "none";
     step7.style.display = "none";
-    bearContainer.style.display = "block";
-    bearContainer.classList.add("bearLeft");
+    updateBear("left");
     renderBackgroundHearts(HEARTS_STEP3);
     const from = sessionStorage.getItem("saybyme_sender") || "";
     const to = sessionStorage.getItem("saybyme_recipient") || "";
@@ -540,7 +563,7 @@ function initSayByMe() {
     step4.style.display = "flex";
     step5.style.display = "none";
     step7.style.display = "none";
-    bearContainer.style.display = "none";
+    updateBear("none");
     renderBackgroundHearts(HEARTS_STEP4);
 
     const from = sessionStorage.getItem("saybyme_sender") || "Someone Special";
@@ -564,7 +587,7 @@ function initSayByMe() {
     step4.style.display = "none";
     step5.style.display = "flex";
     step7.style.display = "none";
-    bearContainer.style.display = "none";
+    updateBear("none");
     renderBackgroundHearts(HEARTS_STEP5);
 
     const from = sessionStorage.getItem("saybyme_sender") || "Someone Special";
@@ -915,8 +938,8 @@ function initSayByMe() {
   /* SAYBYME FIREWORKS ENGINE (CANVAS 2D PHYSICS, ADDITIVE BLENDING)    */
   /* ------------------------------------------------------------------ */
   const TAU = Math.PI * 2;
-  const MAX_PARTICLES = 650;
-  const TRAIL = 4;
+  const MAX_PARTICLES = 160;
+  const TRAIL = 3;
   const GOLD = "#FFD9A0";
   const CREAM = "#FFE9C7";
 
@@ -940,16 +963,13 @@ function initSayByMe() {
     tx: new Array(TRAIL).fill(0), ty: new Array(TRAIL).fill(0),
   });
 
+  // Pure mathematical heart equation (precise, symmetric, romantic)
   const heartOutline = (t) => {
     const hx = 16 * Math.sin(t) ** 3;
     const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-    return [hx / 17, (hy - 2.5) / 17]; // −2.5 centres the heart visually
+    return [hx / 17, (hy - 2.5) / 17];
   };
   const circleOutline = (t) => [Math.cos(t), Math.sin(t)];
-  const discOutline = (t) => {
-    const r = 0.45 + 0.55 * Math.sqrt(Math.random());
-    return [Math.cos(t) * r, Math.sin(t) * r];
-  };
   const starOutline = (t) => {
     const seg = TAU / 10;
     const idx = Math.floor((t % TAU) / seg);
@@ -990,11 +1010,11 @@ function initSayByMe() {
       const r = this.canvas.getBoundingClientRect();
       this.w = Math.max(1, Math.round(r.width));
       this.h = Math.max(1, Math.round(r.height));
-      // DPR capped at 1.25 to prevent fill-rate lag on high-DPI retina displays
-      this.dpr = Math.min(window.devicePixelRatio || 1, 1.25);
-      this.canvas.width = Math.round(this.w * this.dpr);
-      this.canvas.height = Math.round(this.h * this.dpr);
-      this.scale = clamp(Math.min(this.w, this.h * 0.55) / 340, 0.65, 1.4);
+      // Fixed DPR 1.0 for instant 60 FPS on mobile and high-density retina displays
+      this.dpr = 1;
+      this.canvas.width = this.w;
+      this.canvas.height = this.h;
+      this.scale = clamp(Math.min(this.w, this.h * 0.55) / 320, 0.75, 1.25);
     }
 
     start() {
@@ -1034,17 +1054,18 @@ function initSayByMe() {
 
     setAuto(on) {
       this.auto = on;
-      this.nextAuto = this.time + 0.4;
+      this.nextAuto = this.time + 0.6;
     }
 
     launch(o = {}) {
       if (this.w === 0) return;
-      const tx = o.x !== undefined ? o.x : rand(this.w * 0.18, this.w * 0.82);
-      const ty = o.y !== undefined ? o.y : rand(this.h * 0.14, this.h * 0.46);
-      const x0 = clamp(tx + rand(-0.12, 0.12) * this.w, 0, this.w);
-      const y0 = this.h + 10;
-      const dur = rand(0.7, 1.05);
-      const vy = (-2 * (y0 - ty)) / dur; // apex lands exactly on the target
+      const tx = o.x !== undefined ? o.x : rand(this.w * 0.22, this.w * 0.78);
+      const ty = o.y !== undefined ? o.y : rand(this.h * 0.16, this.h * 0.42);
+      const x0 = clamp(tx + rand(-0.08, 0.08) * this.w, 0, this.w);
+      const y0 = this.h + 8;
+      // Faster, snappier rocket flight
+      const dur = rand(0.55, 0.8);
+      const vy = (-2 * (y0 - ty)) / dur;
       this.rockets.push({
         x0, y0, vx: (tx - x0) / dur, vy, g: -vy / dur, dur,
         age: 0, px: x0, py: y0, acc: 0,
@@ -1053,67 +1074,39 @@ function initSayByMe() {
     }
 
     playShow() {
+      // Minimal, graceful choreography: each burst has breathing room
       const script = [
-        [0.25, "heart", 0.5, 0.28],
-        [1.2, "peony", 0.22, 0.32],
-        [1.5, "peony", 0.78, 0.36],
-        [2.4, "star", 0.5, 0.2],
-        [3.0, "double-heart", 0.5, 0.34],
-        [3.5, "ring", 0.25, 0.22],
-        [3.7, "ring", 0.75, 0.24],
-        [4.6, "willow", 0.5, 0.3],
-        [5.6, "heart", 0.3, 0.3],
-        [5.8, "heart", 0.7, 0.3],
+        [0.2, "heart", 0.5, 0.28],
+        [1.5, "double-heart", 0.5, 0.32],
+        [3.0, "heart", 0.3, 0.26],
+        [3.3, "heart", 0.7, 0.26],
+        [4.8, "star", 0.5, 0.25],
       ];
       script.forEach(([at, kind, fx, fy]) =>
         this.schedule(at, () => this.launch({ kind, x: this.w * fx, y: this.h * fy }))
       );
-      this.schedule(6.4, () => this.setAuto(true));
-      this.schedule(10.5, () => this.finale());
-    }
-
-    finale() {
-      [0.15, 0.35, 0.55, 0.75, 0.95].forEach((fx, i) =>
-        this.schedule(i * 0.22, () =>
-          this.launch({
-            x: this.w * fx,
-            y: this.h * (0.2 + 0.1 * (i % 2)),
-            kind: i % 2 ? "double-heart" : "heart",
-          })
-        )
-      );
-      this.schedule(1.3, () =>
-        this.launch({ x: this.w * 0.5, y: this.h * 0.27, kind: "double-heart", big: true })
-      );
-      [0.25, 0.75].forEach((fx) =>
-        this.schedule(1.65, () =>
-          this.launch({ x: this.w * fx, y: this.h * 0.33, kind: "crackle" })
-        )
-      );
+      this.schedule(5.8, () => this.setAuto(true));
     }
 
     snapshot() {
       if (this.w === 0) this.resize();
       [
         [0.5, 0.28, "heart"],
-        [0.25, 0.36, "double-heart"],
-        [0.75, 0.34, "peony"],
+        [0.28, 0.34, "double-heart"],
+        [0.72, 0.34, "star"],
       ].forEach(([fx, fy, kind]) =>
         this.explode(kind, this.w * fx, this.h * fy, false)
       );
-      for (let i = 0; i < 45; i++) this.step(1 / 60);
+      for (let i = 0; i < 35; i++) this.step(1 / 60);
       this.draw();
     }
 
     randomKind() {
       const r = Math.random();
-      if (r < 0.3) return "heart";
-      if (r < 0.45) return "double-heart";
-      if (r < 0.65) return "peony";
-      if (r < 0.75) return "ring";
-      if (r < 0.85) return "star";
-      if (r < 0.93) return "willow";
-      return "crackle";
+      if (r < 0.45) return "heart";
+      if (r < 0.75) return "double-heart";
+      if (r < 0.9) return "star";
+      return "ring";
     }
 
     spawn(o) {
@@ -1121,7 +1114,7 @@ function initSayByMe() {
       const p = this.pool.pop() || makeParticle();
       p.x = o.x; p.y = o.y; p.vx = o.vx; p.vy = o.vy;
       p.life = o.life; p.size = o.size; p.color = o.color;
-      p.drag = o.drag !== undefined ? o.drag : 1.8;
+      p.drag = o.drag !== undefined ? o.drag : 2.2;
       p.gravity = o.gravity !== undefined ? o.gravity : 0;
       p.flicker = !!o.flicker;
       p.crackle = !!o.crackle;
@@ -1134,70 +1127,70 @@ function initSayByMe() {
       this.live.push(p);
     }
 
+    // Precision shape emitter: zero jitter so geometry is razor-sharp
     shape(x, y, outline, n, radius, o) {
       const S = this.scale;
       const lambda = o.lambda !== undefined ? o.lambda : 2.3;
-      const jitter = o.jitter !== undefined ? o.jitter : 0.02;
-      const lifeRange = o.life || [1.5, 2.0];
       for (let i = 0; i < n; i++) {
-        const [ux, uy] = outline((i / n) * TAU + rand(-0.01, 0.01));
-        const j = 1 + rand(-jitter, jitter);
+        const [ux, uy] = outline((i / n) * TAU);
         this.spawn({
           x, y,
-          vx: ux * radius * lambda * j,
-          vy: uy * radius * lambda * j,
-          life: rand(lifeRange[0], lifeRange[1]),
-          size: (o.size !== undefined ? o.size : 2.2) * S,
+          vx: ux * radius * lambda,
+          vy: uy * radius * lambda,
+          life: rand(1.3, 1.8),
+          size: (o.size !== undefined ? o.size : 2.3) * S,
           color: typeof o.color === "function" ? o.color() : o.color,
           drag: lambda,
-          gravity: (o.gravity !== undefined ? o.gravity : 55) * S,
+          gravity: (o.gravity !== undefined ? o.gravity : 45) * S,
           trail: o.trail, flicker: o.flicker, crackle: o.crackle,
         });
       }
     }
 
     explode(kind, x, y, big) {
-      const S = this.scale * (big ? 1.35 : 1);
+      const S = this.scale * (big ? 1.25 : 1);
       const c1 = pick(this.palette);
       const c2 = pick(this.palette.filter((c) => c !== c1)) || c1;
 
-      this.flashes.push({ x, y, r: 130 * S, age: 0, life: 0.45, color: c1 });
-      this.rings.push({ x, y, max: 120 * S, age: 0, life: 0.55, color: c1 });
+      this.flashes.push({ x, y, r: 80 * S, age: 0, life: 0.35, color: c1 });
+      this.rings.push({ x, y, max: 95 * S, age: 0, life: 0.45, color: c1 });
 
       switch (kind) {
         case "heart":
-          this.shape(x, y, heartOutline, 54, 92 * S, { color: c1 });
-          this.shape(x, y, discOutline, 16, 44 * S, { color: "#FFFFFF", life: [0.6, 1.0], size: 1.5, flicker: true });
-          break;
-        case "double-heart":
-          this.shape(x, y, heartOutline, 52, 96 * S, { color: c1 });
-          this.shape(x, y, heartOutline, 34, 52 * S, { color: c2, life: [1.3, 1.7] });
-          this.shape(x, y, discOutline, 14, 28 * S, { color: "#FFFFFF", life: [0.5, 0.8], size: 1.4, flicker: true });
-          break;
-        case "peony":
-          this.shape(x, y, discOutline, 65, 118 * S, {
-            color: () => (Math.random() < 0.75 ? c1 : "#FFFFFF"),
-            lambda: 1.9, jitter: 0, life: [1.4, 2.0], gravity: 60,
+          // 34 precision perimeter particles forming a clean, razor-sharp heart contour
+          this.shape(x, y, heartOutline, 34, 88 * S, { color: c1, life: [1.3, 1.7], size: 2.3 });
+          // 1 bright twinkling center spark
+          this.spawn({
+            x, y, vx: 0, vy: -5 * S, life: 0.7, size: 2.2 * S, color: "#FFFFFF", flicker: true,
           });
           break;
-        case "ring":
-          this.shape(x, y, circleOutline, 46, 108 * S, { color: c1, lambda: 2.1 });
-          this.shape(x, y, circleOutline, 26, 64 * S, { color: c2, lambda: 2.1, life: [1.2, 1.6] });
+        case "double-heart":
+          // Outer heart (32 sparks) + Inner concentric heart (20 sparks)
+          this.shape(x, y, heartOutline, 32, 92 * S, { color: c1, life: [1.3, 1.7], size: 2.3 });
+          this.shape(x, y, heartOutline, 20, 52 * S, { color: c2, life: [1.1, 1.5], size: 2.0 });
           break;
         case "star":
-          this.shape(x, y, starOutline, 64, 118 * S, { color: c1, lambda: 2.2, jitter: 0.01 });
-          this.shape(x, y, discOutline, 14, 38 * S, { color: GOLD, life: [0.7, 1.1], size: 1.6, flicker: true });
+          this.shape(x, y, starOutline, 30, 95 * S, { color: c1, lambda: 2.2, life: [1.2, 1.6], size: 2.2 });
+          break;
+        case "ring":
+          this.shape(x, y, circleOutline, 28, 90 * S, { color: c1, lambda: 2.1, life: [1.2, 1.6], size: 2.2 });
+          break;
+        case "peony":
+          this.shape(x, y, circleOutline, 36, 92 * S, {
+            color: () => (Math.random() < 0.75 ? c1 : "#FFFFFF"),
+            lambda: 1.9, life: [1.2, 1.7], gravity: 45, size: 2.0,
+          });
           break;
         case "willow":
-          this.shape(x, y, discOutline, 40, 118 * S, {
-            color: () => (Math.random() < 0.6 ? GOLD : CREAM),
-            lambda: 1.1, jitter: 0, life: [2.4, 3.1], gravity: 72, trail: TRAIL, size: 2.1,
+          this.shape(x, y, circleOutline, 22, 90 * S, {
+            color: () => GOLD,
+            lambda: 1.1, life: [2.0, 2.6], gravity: 65, trail: TRAIL, size: 2.0,
           });
           break;
         case "crackle":
-          this.shape(x, y, discOutline, 42, 112 * S, {
-            color: () => (Math.random() < 0.5 ? "#FFFFFF" : GOLD),
-            lambda: 1.8, jitter: 0, life: [1.1, 1.5], size: 1.9, crackle: true,
+          this.shape(x, y, circleOutline, 24, 88 * S, {
+            color: () => GOLD,
+            lambda: 1.8, life: [1.0, 1.4], size: 1.8, crackle: true,
           });
           break;
       }
@@ -1218,9 +1211,8 @@ function initSayByMe() {
 
       // auto show
       if (this.auto && this.time >= this.nextAuto) {
-        this.launch({});
-        if (Math.random() < 0.25) this.launch({});
-        this.nextAuto = this.time + rand(1.0, 1.8);
+        this.launch({ kind: Math.random() < 0.65 ? "heart" : "double-heart" });
+        this.nextAuto = this.time + rand(1.8, 2.8);
       }
 
       // rockets
@@ -1230,15 +1222,15 @@ function initSayByMe() {
         const t = Math.min(r.age, r.dur);
         r.px = r.x0 + r.vx * t;
         r.py = r.y0 + r.vy * t + 0.5 * r.g * t * t;
-        // Controlled spark generation (24 sparks/sec) to avoid particle starvation
-        r.acc += dt * 24;
+        // Minimal rocket spark trail: 10 sparks/sec
+        r.acc += dt * 10;
         while (r.acc >= 1) {
           r.acc -= 1;
           this.spawn({
-            x: r.px + rand(-1.5, 1.5), y: r.py,
-            vx: rand(-15, 15) * S, vy: rand(10, 45) * S,
-            life: rand(0.3, 0.6), size: 1.4 * S, color: GOLD,
-            drag: 1.5, gravity: 60 * S, flicker: true,
+            x: r.px, y: r.py,
+            vx: rand(-8, 8) * S, vy: rand(5, 25) * S,
+            life: rand(0.2, 0.4), size: 1.3 * S, color: GOLD,
+            drag: 1.5, gravity: 40 * S, flicker: true,
           });
         }
         if (r.age >= r.dur) {
@@ -1262,14 +1254,12 @@ function initSayByMe() {
         }
         if (p.age >= p.life) {
           if (p.crackle) {
-            for (let j = 0; j < 2; j++) {
-              this.spawn({
-                x: p.x, y: p.y, vx: rand(-40, 40) * S, vy: rand(-40, 40) * S,
-                life: rand(0.2, 0.4), size: 1.2 * S,
-                color: Math.random() < 0.5 ? "#FFFFFF" : CREAM,
-                drag: 3, gravity: 40 * S, flicker: true,
-              });
-            }
+            this.spawn({
+              x: p.x, y: p.y, vx: rand(-25, 25) * S, vy: rand(-25, 25) * S,
+              life: rand(0.15, 0.3), size: 1.2 * S,
+              color: "#FFFFFF",
+              drag: 3, gravity: 30 * S, flicker: true,
+            });
           }
           this.live[i] = this.live[this.live.length - 1];
           this.live.pop();
@@ -1288,23 +1278,23 @@ function initSayByMe() {
       }
     }
 
+    // Pre-rendered 20x20 crisp glow sprite (extremely lightweight on mobile GPUs)
     sprite(color) {
       let s = this.sprites.get(color);
       if (s) return s;
       s = document.createElement("canvas");
-      // 32x32 sprite is 4x lighter in fill-rate than 64x64 while preserving smooth glow
-      s.width = s.height = 32;
+      s.width = s.height = 20;
       const g = s.getContext("2d");
       if (!g) return s;
       const n = parseInt(color.slice(1), 16);
       const rgb = `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
-      const grad = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+      const grad = g.createRadialGradient(10, 10, 0, 10, 10, 10);
       grad.addColorStop(0, "rgba(255,255,255,1)");
-      grad.addColorStop(0.2, `rgba(${rgb},0.95)`);
-      grad.addColorStop(0.5, `rgba(${rgb},0.3)`);
+      grad.addColorStop(0.25, `rgba(${rgb},0.95)`);
+      grad.addColorStop(0.6, `rgba(${rgb},0.25)`);
       grad.addColorStop(1, `rgba(${rgb},0)`);
       g.fillStyle = grad;
-      g.fillRect(0, 0, 32, 32);
+      g.fillRect(0, 0, 20, 20);
       this.sprites.set(color, s);
       return s;
     }
@@ -1312,7 +1302,7 @@ function initSayByMe() {
     draw() {
       const { ctx, w, h } = this;
       const S = this.scale;
-      ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, w, h);
       ctx.globalCompositeOperation = "lighter";
       ctx.lineCap = "round";
@@ -1320,9 +1310,9 @@ function initSayByMe() {
       // shock rings
       for (const g of this.rings) {
         const t = g.age / g.life;
-        ctx.globalAlpha = Math.max(0, (1 - t) * 0.4);
+        ctx.globalAlpha = Math.max(0, (1 - t) * 0.35);
         ctx.strokeStyle = g.color;
-        ctx.lineWidth = 1.5 * S;
+        ctx.lineWidth = 1.2 * S;
         ctx.beginPath();
         ctx.arc(g.x, g.y, g.max * (1 - (1 - t) ** 3), 0, TAU);
         ctx.stroke();
@@ -1332,7 +1322,7 @@ function initSayByMe() {
       for (const f of this.flashes) {
         const t = f.age / f.life;
         const r = f.r * (0.6 + 0.4 * t);
-        ctx.globalAlpha = Math.max(0, (1 - t) ** 2 * 0.45);
+        ctx.globalAlpha = Math.max(0, (1 - t) ** 2 * 0.4);
         ctx.drawImage(this.sprite(f.color), f.x - r, f.y - r, r * 2, r * 2);
       }
 
@@ -1340,27 +1330,27 @@ function initSayByMe() {
       for (const r of this.rockets) {
         const t = Math.min(r.age, r.dur);
         const vy = r.vy + r.g * t;
-        ctx.globalAlpha = 0.7;
+        ctx.globalAlpha = 0.65;
         ctx.strokeStyle = GOLD;
-        ctx.lineWidth = 2 * S;
+        ctx.lineWidth = 1.6 * S;
         ctx.beginPath();
         ctx.moveTo(r.px, r.py);
-        ctx.lineTo(r.px - r.vx * 0.035, r.py - vy * 0.035);
+        ctx.lineTo(r.px - r.vx * 0.03, r.py - vy * 0.03);
         ctx.stroke();
         ctx.globalAlpha = 1;
-        const d = 11 * S;
+        const d = 10 * S;
         ctx.drawImage(this.sprite("#FFE9C7"), r.px - d / 2, r.py - d / 2, d, d);
       }
 
-      // Pass 1: Batched trails for willow / sparkler particles (single contiguous polyline per particle)
+      // Pass 1: Batched willow trails
       for (let i = 0; i < this.live.length; i++) {
         const p = this.live[i];
         if (p.trail > 1) {
           const lf = 1 - p.age / p.life;
           if (lf <= 0.01) continue;
           ctx.strokeStyle = p.color;
-          ctx.globalAlpha = lf * 0.55;
-          ctx.lineWidth = Math.max(0.7, p.size * 0.75);
+          ctx.globalAlpha = lf * 0.5;
+          ctx.lineWidth = Math.max(0.6, p.size * 0.65);
           ctx.beginPath();
           ctx.moveTo(p.tx[0], p.ty[0]);
           for (let k = 1; k < p.trail; k++) {
@@ -1370,7 +1360,7 @@ function initSayByMe() {
         }
       }
 
-      // Pass 2: Particle glow sprites
+      // Pass 2: Precision glowing particle sprites
       for (let i = 0; i < this.live.length; i++) {
         const p = this.live[i];
         const lf = 1 - p.age / p.life;
@@ -1383,7 +1373,7 @@ function initSayByMe() {
         if (a <= 0.02) continue;
 
         ctx.globalAlpha = Math.min(1, a);
-        const d = p.size * 4.2 * (0.6 + 0.4 * lf);
+        const d = p.size * 3.8 * (0.6 + 0.4 * lf);
         ctx.drawImage(this.sprite(p.color), p.x - d / 2, p.y - d / 2, d, d);
       }
 
@@ -1496,7 +1486,7 @@ function initSayByMe() {
     step4.style.display = "none";
     step5.style.display = "none";
     step7.style.display = "flex";
-    bearContainer.style.display = "none";
+    updateBear("none");
     renderBackgroundHearts(HEARTS_STEP5);
 
     const from = sessionStorage.getItem("saybyme_sender") || "";

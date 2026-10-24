@@ -539,7 +539,17 @@ body {
 }
 
 @media (max-width: 900px) {
-  .bear { display: none; }
+  .bear,
+  #bear-container,
+  .bearLeft {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
   .stepText { font-size: 14px; }
 }
 
