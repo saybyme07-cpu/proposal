@@ -2332,22 +2332,38 @@ p.sbm-caret::after {
 /* ------------------------------------------------------------------ */
 /* STAGE 5: ROMANTIC CARD DECK & QUOTE (AFTER SAYING YES)              */
 /* ------------------------------------------------------------------ */
+#peAfterYesContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 82px 6px 18px 6px;
+  position: relative;
+  z-index: 2;
+}
+
 .sbmDeckBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 14px;
+  padding: 5px 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(247, 168, 180, 0.65);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(247, 168, 180, 0.7);
   font-family: var(--font-quicksand), sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: #D75070;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px -4px rgba(146, 54, 76, 0.15);
+  box-shadow: 0 4px 14px -4px rgba(146, 54, 76, 0.18);
+  margin-top: 2px;
+  margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
 .sbmCardDeckWrap {
@@ -2604,6 +2620,25 @@ p.sbm-caret::after {
     width: 100vw !important;
     height: 100dvh !important;
   }
+
+  .recipient-view #peAfterYesContent {
+    padding-top: 86px !important;
+    padding-bottom: 22px !important;
+  }
+
+  .recipient-view #peStageWelcome .sbmStageContent,
+  .recipient-view #peStageQuestion .sbmStageContent {
+    padding-top: 80px !important;
+  }
+}
+
+.recipient-view #peAfterYesContent {
+  padding-top: 84px !important;
+}
+
+.recipient-view #peStageWelcome .sbmStageContent,
+.recipient-view #peStageQuestion .sbmStageContent {
+  padding-top: 76px !important;
 }
 
 /* Floating Music Speaker Button matching reference image */
