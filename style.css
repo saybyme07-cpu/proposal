@@ -2613,8 +2613,10 @@ p.sbm-caret::after {
   height: 42px;
   border-radius: 50%;
   border: 2px solid #fad2db;
-  background: #ffffff;
-  box-shadow: 0 4px 14px rgba(138, 44, 62, 0.14);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(138, 44, 62, 0.16);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2627,11 +2629,11 @@ p.sbm-caret::after {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Global button fixed in top-right of EVERY page */
+/* Global button fixed in bottom-right corner of EVERY page */
 .sbmGlobalAudioBtn {
   position: fixed;
-  top: 22px;
-  right: 26px;
+  bottom: 24px;
+  right: 24px;
   z-index: 999999;
 }
 
@@ -2701,8 +2703,9 @@ p.sbm-caret::after {
 
 @media (max-width: 600px) {
   .sbmGlobalAudioBtn {
-    top: 14px;
-    right: 16px;
+    top: auto;
+    bottom: 18px;
+    right: 18px;
     width: 38px;
     height: 38px;
   }
