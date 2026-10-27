@@ -46,21 +46,33 @@ body {
 /* logo + tagline */
 .logo {
   position: absolute;
-  top: 32px;
-  left: 60px;
+  top: 24px;
+  left: 50px;
   display: flex;
   align-items: center;
-  gap: 10px;
   z-index: 5;
-  font-family: var(--font-itim), cursive, sans-serif;
-  font-size: 35px;
-  font-weight: 400;
-  color: #8a2c3e;
 }
 
-.logoHeart {
-  width: 38px;
-  height: auto;
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logoImg {
+  height: 56px;
+  width: auto;
+  max-width: 190px;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 2px 8px rgba(180, 50, 80, 0.08));
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.logoLink:hover .logoImg {
+  transform: scale(1.04);
 }
 
 .tagline {
@@ -386,8 +398,9 @@ body {
 }
 
 @media (max-width: 700px) {
-  .logo { left: 20px; top: 20px; font-size: 30px; }
-  .tagline { right: 18px; top: 24px; font-size: 18px; }
+  .logo { left: 16px; top: 18px; }
+  .logoImg { height: 38px; max-width: 130px; }
+  .tagline { right: 18px; top: 22px; font-size: 17px; }
   .spark { display: none; }
   .corner { width: 62vw; }
 }
