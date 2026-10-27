@@ -28,6 +28,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Dancing+Script:wght@600;700&family=Itim&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Quicksand:wght@500;600;700&display=swap"
           rel="stylesheet"
         />
+        <link rel="preload" href="/images/logo.png" as="image" type="image/png" />
         <link rel="preload" href="/audio/bgm.m4a" as="audio" type="audio/mp4" />
         <link rel="preload" href="/audio/bgm.m4a" as="fetch" crossOrigin="anonymous" />
       </head>

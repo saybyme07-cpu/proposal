@@ -55,12 +55,10 @@ body {
   display: flex;
   align-items: center;
   z-index: 5;
-}
-
-.logoLink {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  text-decoration: none !important;
 }
 
 .logoImg {
@@ -71,8 +69,15 @@ body {
   display: block;
   user-select: none;
   -webkit-user-drag: none;
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
   filter: drop-shadow(0 2px 8px rgba(180, 50, 80, 0.08));
   transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.logo:hover .logoImg {
+  transform: scale(1.04);
 }
 
 .logoLink:hover .logoImg {
