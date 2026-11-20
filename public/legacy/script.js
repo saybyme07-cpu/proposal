@@ -2003,6 +2003,27 @@ function initSayByMe() {
     }
   }
 
+  // Helper to dynamically load Razorpay checkout script if not present
+  function ensureRazorpayScript() {
+    return new Promise((resolve) => {
+      if (typeof window.Razorpay !== "undefined") {
+        return resolve(true);
+      }
+      const existing = document.querySelector('script[src*="checkout.razorpay.com"]');
+      if (existing) {
+        existing.addEventListener("load", () => resolve(true));
+        existing.addEventListener("error", () => resolve(false));
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.head.appendChild(script);
+    });
+  }
+
   btnGenerateLink.addEventListener("click", async () => {
     const sender = sessionStorage.getItem("saybyme_sender") || "Someone Special";
     const recipient = sessionStorage.getItem("saybyme_recipient") || "Special One";
@@ -2012,36 +2033,119 @@ function initSayByMe() {
     const celebrations = rawCelebs ? JSON.parse(rawCelebs) : ["memories", "fireworks"];
 
     const origText = btnGenerateLink.innerHTML;
-    btnGenerateLink.innerHTML = "<span>Saving to Convex... ✨</span>";
+    btnGenerateLink.innerHTML = "<span>Securing payment... 🔒</span>";
     btnGenerateLink.disabled = true;
 
+    // Load Razorpay script
+    await ensureRazorpayScript();
+
+    // 1. Create Razorpay order via our backend endpoint
+    let orderData = null;
     try {
-      const res = await fetch("https://brazen-stoat-999.ap-southeast-2.convex.cloud/api/mutation", {
+      const orderRes = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          path: "proposals:createProposal",
-          args: {
-            senderName: sender,
-            recipientName: recipient,
-            question: question,
-            message: message,
-            celebrations: celebrations,
-          },
-          format: "json",
+          amount: 9900, // ₹99
+          sender: sender,
+          recipient: recipient,
         }),
       });
+      if (orderRes.ok) {
+        orderData = await orderRes.json();
+      }
+    } catch (e) {
+      console.warn("Could not reach /api/razorpay/create-order, using fallback client checkout:", e);
+    }
 
-      const data = await res.json();
-      const slug = data.value?.slug || ("sbm_" + Math.random().toString(36).substring(2, 9));
-      const shareUrl = `${window.location.origin}/preview/${slug}`;
-      showShareModal(shareUrl, recipient);
-    } catch (err) {
-      console.error("Convex error:", err);
-      const fallbackSlug = "sbm_" + Math.random().toString(36).substring(2, 9);
-      const shareUrl = `${window.location.origin}/preview/${fallbackSlug}`;
-      showShareModal(shareUrl, recipient);
-    } finally {
+    const keyId = (orderData && orderData.keyId) || "rzp_test_U2VeJFeEtjG3rv";
+
+    // 2. Configure Razorpay Checkout
+    const options = {
+      key: keyId,
+      amount: (orderData && orderData.amount) || 9900, // ₹99 = 9900 paise
+      currency: "INR",
+      name: "SayByMe",
+      description: "Unlock Private Proposal Link (₹99)",
+      image: "/images/logo.png",
+      order_id: orderData ? orderData.orderId : undefined,
+      prefill: {
+        name: sender,
+      },
+      theme: {
+        color: "#D75070",
+      },
+      handler: async function (response) {
+        // Payment Succeeded! Now create and unlock the link
+        btnGenerateLink.innerHTML = "<span>Generating your private link... ✨</span>";
+
+        // Optional server-side signature verification
+        if (response.razorpay_signature && orderData) {
+          try {
+            await fetch("/api/razorpay/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+          } catch (verErr) {
+            console.error("Verification ping error:", verErr);
+          }
+        }
+
+        // Save to Convex backend
+        try {
+          const res = await fetch("https://brazen-stoat-999.ap-southeast-2.convex.cloud/api/mutation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              path: "proposals:createProposal",
+              args: {
+                senderName: sender,
+                recipientName: recipient,
+                question: question,
+                message: message,
+                celebrations: celebrations,
+              },
+              format: "json",
+            }),
+          });
+
+          const data = await res.json();
+          const slug = data.value?.slug || ("sbm_" + Math.random().toString(36).substring(2, 9));
+          const shareUrl = `${window.location.origin}/preview/${slug}`;
+          showShareModal(shareUrl, recipient);
+        } catch (err) {
+          console.error("Convex error:", err);
+          const fallbackSlug = "sbm_" + Math.random().toString(36).substring(2, 9);
+          const shareUrl = `${window.location.origin}/preview/${fallbackSlug}`;
+          showShareModal(shareUrl, recipient);
+        } finally {
+          btnGenerateLink.innerHTML = origText;
+          btnGenerateLink.disabled = false;
+        }
+      },
+      modal: {
+        ondismiss: function () {
+          btnGenerateLink.innerHTML = origText;
+          btnGenerateLink.disabled = false;
+        },
+      },
+    };
+
+    if (typeof window.Razorpay === "function") {
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function (resp) {
+        alert("Payment was not completed. Please try again to unlock your proposal link.");
+        btnGenerateLink.innerHTML = origText;
+        btnGenerateLink.disabled = false;
+      });
+      rzp.open();
+    } else {
+      alert("Unable to open Razorpay payment gateway. Please check your internet connection.");
       btnGenerateLink.innerHTML = origText;
       btnGenerateLink.disabled = false;
     }

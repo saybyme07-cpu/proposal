@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import "../style.css";
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         <link rel="preload" href="/audio/bgm.m4a" as="fetch" crossOrigin="anonymous" />
       </head>
       <body suppressHydrationWarning>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
         <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>
