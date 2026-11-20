@@ -777,18 +777,6 @@
               <!-- Tiny heart stamp at bottom right -->
               <path d="M150 92 C146 88 138 88 135 94 C133 99 137 104 144 110 C151 104 155 99 153 94 C150 88 142 88 139 92 Z"
                 fill="#ff9aa5" opacity="0.65" />
-
-              <!-- Embedded Letter Text: Rotated and Scaled with the Sheet Perfectly! -->
-              <foreignObject x="-165" y="-150" width="330" height="255">
-                <div xmlns="http://www.w3.org/1999/xhtml" class="svgLetterContent">
-                  <div class="letterSalutation" id="letterSalutation">Dear Special One,</div>
-                  <div class="letterBodyText" id="letterBodyDisplay">I still remember the first time I heard you laugh — I knew it was a moment I'd keep. I still do. Every little thing about you matters to me. You're my favourite person.</div>
-                  <div class="letterValediction" id="letterValediction">
-                    With all my love,
-                    <span id="letterSenderName">Someone Special <svg viewBox="0 0 24 22" class="valedictionHeart"><path d="M12 21C5 15.5 1.5 11.8 1.5 7.4 1.5 4.2 4 2 6.8 2c2 0 3.7 1 5.2 3 1.5-2 3.2-3 5.2-3 2.8 0 5.3 2.2 5.3 5.4 0 4.4-3.5 8.1-10.5 13.600z" fill="#d62e49" stroke="none"/></svg></span>
-                  </div>
-                </div>
-              </foreignObject>
             </g>
 
             <!-- Front Envelope Pocket -->
@@ -802,14 +790,14 @@
             </g>
 
             <!-- Red Wax Heart at Envelope Center Fold -->
-            <g transform="translate(340 388) scale(0.92)" class="seal">
+            <g transform="translate(340 388) scale(0.92)">
               <path d="M0 24 C-14 14 -32 4 -32 -10 C-32 -23 -23 -31 -14 -31 C-6 -31 -2 -26 0 -22 C2 -26 6 -31 14 -31 C23 -31 32 -23 32 -10 C32 4 14 14 0 24 Z"
                 fill="url(#heartSealGrad)" stroke="#9c2035" stroke-width="2.4" stroke-linejoin="round" />
               <ellipse cx="-14" cy="-16" rx="8" ry="4" transform="rotate(-30 -14 -16)" fill="#fff" opacity="0.4" />
             </g>
 
             <!-- Flower Bouquet on Left of Envelope -->
-            <g transform="translate(145 320)" class="sway">
+            <g transform="translate(145 320)">
               <!-- Stems -->
               <path d="M42 55 Q35 75 28 95" stroke="#759368" stroke-width="2.5" stroke-linecap="round" fill="none" />
               <path d="M48 55 Q50 78 52 98" stroke="#759368" stroke-width="2.5" stroke-linecap="round" fill="none" />
@@ -856,7 +844,7 @@
             </g>
 
             <!-- Cute Pink Pen on Right of Envelope -->
-            <g transform="translate(528 290) rotate(22)" class="bob">
+            <g transform="translate(528 290) rotate(22)">
               <!-- Pen body -->
               <path d="M-10 -75 L10 -75 L8 70 L-8 70 Z" fill="url(#penGrad)" stroke="#b5384c" stroke-width="2" />
               <!-- Pen tip & nib -->
@@ -877,6 +865,16 @@
             <line class="dash" x1="550" y1="260" x2="570" y2="265" style="animation-delay: 1.4s;" />
             <line class="dash" x1="555" y1="340" x2="572" y2="345" style="animation-delay: 0.5s;" />
           </svg>
+
+          <!-- Real HTML Letter Text Overlay (Rock-Solid Cross-Platform) -->
+          <div class="letterTextOverlay">
+            <div class="letterSalutation" id="letterSalutation">Dear Special One,</div>
+            <div class="letterBodyText" id="letterBodyDisplay">I still remember the first time I heard you laugh — I knew it was a moment I'd keep. I still do. Every little thing about you matters to me. You're my favourite person.</div>
+            <div class="letterValediction" id="letterValediction">
+              With all my love,
+              <span id="letterSenderName">Someone Special <svg viewBox="0 0 24 22" class="valedictionHeart"><path d="M12 21C5 15.5 1.5 11.8 1.5 7.4 1.5 4.2 4 2 6.8 2c2 0 3.7 1 5.2 3 1.5-2 3.2-3 5.2-3 2.8 0 5.3 2.2 5.3 5.4 0 4.4-3.5 8.1-10.5 13.600z" fill="#d62e49" stroke="none"/></svg></span>
+            </div>
+          </div>
         </div>
       </div>
 

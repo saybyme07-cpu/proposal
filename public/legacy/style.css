@@ -341,10 +341,8 @@ body {
 }
 
 .corner,
-.sway,
 .driftA,
 .driftB,
-.bob,
 .floaty,
 .sbm-rise-float {
   will-change: transform;
@@ -760,57 +758,57 @@ body {
   overflow: visible;
 }
 
-.svgLetterContent {
-  width: 100%;
-  height: 100%;
+.letterTextOverlay {
+  position: absolute;
+  left: 47.8%;
+  top: 31%;
+  width: 47%;
+  height: 44%;
+  transform: translate(-50%, -50%) rotate(-4.5deg);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  text-align: left;
+  box-sizing: border-box;
+  padding: 6px 10px;
   font-family: var(--font-itim), cursive;
   color: #631e2b;
-  box-sizing: border-box;
-  padding: 4px 6px 12px 6px;
-  user-select: none;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  touch-action: pan-y;
-  scrollbar-width: thin;
-  scrollbar-color: #f3a6b5 transparent;
+  scrollbar-width: none;
+  z-index: 2;
+  pointer-events: auto;
+  text-align: left;
 }
 
-.svgLetterContent::-webkit-scrollbar {
-  width: 4px;
-}
-
-.svgLetterContent::-webkit-scrollbar-thumb {
-  background: #f3a6b5;
-  border-radius: 4px;
+.letterTextOverlay::-webkit-scrollbar {
+  display: none;
 }
 
 .letterSalutation {
-  font-size: 20px;
+  font-size: clamp(13px, 2.8vw, 18px);
   font-weight: 700;
   color: #5a1925;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   letter-spacing: .01em;
+  line-height: 1.2;
 }
 
 .letterBodyText {
-  font-size: 15.5px;
-  line-height: 1.5;
+  font-size: clamp(11.5px, 2.3vw, 15px);
+  line-height: 1.45;
   color: #631e2b;
   white-space: pre-wrap;
   word-break: break-word;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   letter-spacing: .015em;
+  flex-grow: 1;
 }
 
 .letterValediction {
-  font-size: 15px;
-  line-height: 1.35;
+  font-size: clamp(11px, 2.2vw, 14px);
+  line-height: 1.3;
   color: #631e2b;
+  margin-top: auto;
 }
 
 .letterValediction span {
@@ -819,13 +817,13 @@ body {
   gap: 5px;
   font-weight: 700;
   color: #5a1925;
-  font-size: 16px;
+  font-size: clamp(12px, 2.4vw, 15px);
   margin-top: 2px;
 }
 
 .valedictionHeart {
-  width: 15px;
-  height: 14px;
+  width: 14px;
+  height: 13px;
   display: inline-block;
   vertical-align: -2px;
 }
@@ -2942,11 +2940,11 @@ p.sbm-caret::after {
 
 @media (max-width: 600px) {
   .sbmGlobalAudioBtn {
-    top: auto;
-    bottom: 18px;
-    right: 18px;
-    width: 38px;
-    height: 38px;
+    top: 14px;
+    bottom: auto;
+    right: 14px;
+    width: 36px;
+    height: 36px;
   }
 }
 
