@@ -848,15 +848,15 @@ function initSayByMe() {
     if (summaryRecipientName) summaryRecipientName.textContent = recipient;
     if (summaryQuestion) summaryQuestion.textContent = question;
 
-    const CELEB_LABELS = {
-      memories: "💖 Cute GIFs",
-      fireworks: "🎆 Heart Fireworks",
-      card: "💖 Cute GIFs",
-      message: "💖 Cute GIFs",
+    const CELEB_PILLS = {
+      memories: `<span class="celebPill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#D75070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Cute GIFs</span>`,
+      fireworks: `<span class="celebPill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#D75070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.17-6.83l-2.83 2.83m-8 8l-2.83 2.83m0-13.66l2.83 2.83m8 8l2.83 2.83"/></svg> Heart Fireworks</span>`,
+      card: `<span class="celebPill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#D75070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Cute GIFs</span>`,
+      message: `<span class="celebPill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#D75070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Cute GIFs</span>`,
     };
     if (summaryCelebrationPills) {
       summaryCelebrationPills.innerHTML = celebrationQueue
-        .map((c) => `<span class="celebPill">${CELEB_LABELS[c] || c}</span>`)
+        .map((c) => CELEB_PILLS[c] || `<span class="celebPill">${c}</span>`)
         .join("");
     }
 

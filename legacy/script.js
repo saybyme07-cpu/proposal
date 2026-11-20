@@ -126,7 +126,7 @@ function renderBackgroundHearts(heartsList) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function initSayByMe() {
   const step1 = document.getElementById("step-1");
   const step2 = document.getElementById("step-2");
   const step3 = document.getElementById("step-3");
@@ -842,21 +842,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     currentCelebIdx = 0;
 
-    // Populate Right-hand summary
-    previewRecipientHeading.textContent = recipient;
-    summarySenderName.textContent = sender;
-    summaryRecipientName.textContent = recipient;
-    summaryQuestion.textContent = question;
+    // Populate Right-hand summary (if present in DOM)
+    if (previewRecipientHeading) previewRecipientHeading.textContent = recipient;
+    if (summarySenderName) summarySenderName.textContent = sender;
+    if (summaryRecipientName) summaryRecipientName.textContent = recipient;
+    if (summaryQuestion) summaryQuestion.textContent = question;
 
-    const CELEB_LABELS = {
-      memories: "💖 Cute GIFs",
-      fireworks: "🎆 Heart Fireworks",
-      card: "💖 Cute GIFs",
-      message: "💖 Cute GIFs",
+    const CELEB_PILLS = {
+      memories: `<span class="celebPill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#D75070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Cute GIFs</span>`,
+      fireworks: `<span class="celebPill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#D75070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.17-6.83l-2.83 2.83m-8 8l-2.83 2.83m0-13.66l2.83 2.83m8 8l2.83 2.83"/></svg> Heart Fireworks</span>`,
+      card: `<span class="celebPill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#D75070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Cute GIFs</span>`,
+      message: `<span class="celebPill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#D75070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Cute GIFs</span>`,
     };
-    summaryCelebrationPills.innerHTML = celebrationQueue
-      .map((c) => `<span class="celebPill">${CELEB_LABELS[c] || c}</span>`)
-      .join("");
+    if (summaryCelebrationPills) {
+      summaryCelebrationPills.innerHTML = celebrationQueue
+        .map((c) => CELEB_PILLS[c] || `<span class="celebPill">${c}</span>`)
+        .join("");
+    }
 
     // Setup Stage 1: Welcome
     peWelcomeTitle.textContent = `A letter for ${recipient}`;
@@ -884,15 +886,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Setup Celebrations & Finale
     const yesMsg = `You just made ${sender}'s whole world brighter. Thank you for saying yes! ${getHeartSvg(16, "sbmHeartInline")}`;
-    peCardSender.textContent = sender;
-    peCardRecipient.textContent = recipient;
-    peCardQuestion.textContent = `“${question}”`;
-    peCardYesMsg.textContent = yesMsg;
+    if (peCardSender) peCardSender.textContent = sender;
+    if (peCardRecipient) peCardRecipient.textContent = recipient;
+    if (peCardQuestion) peCardQuestion.textContent = `“${question}”`;
+    if (peCardYesMsg) peCardYesMsg.textContent = yesMsg;
 
-    peFireworksHeading.textContent = `${recipient} said YES!`;
-    peFireworksMsg.textContent = yesMsg;
-    peFinaleTitle.textContent = `Thank you, ${recipient}`;
-    peFinaleSubtitle.textContent = `This is where ${sender} and you begin your next beautiful chapter.`;
+    if (peFireworksHeading) peFireworksHeading.textContent = `${recipient} said YES!`;
+    if (peFireworksMsg) peFireworksMsg.textContent = yesMsg;
+    if (peFinaleTitle) peFinaleTitle.textContent = `Thank you, ${recipient}`;
+    if (peFinaleSubtitle) peFinaleSubtitle.textContent = `This is where ${sender} and you begin your next beautiful chapter.`;
   }
 
   function showExperienceIntro() {
@@ -1764,8 +1766,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const from = sessionStorage.getItem("saybyme_sender") || "";
     const to = sessionStorage.getItem("saybyme_recipient") || "";
-    const query = `?name=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&step=7`;
-    window.history.replaceState(null, "", `${window.location.pathname}${query}`);
+    if (!window.location.pathname.startsWith("/preview") && !window.__SAYBYME_RECIPIENT_MODE__) {
+      const query = `?name=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&step=7`;
+      window.history.replaceState(null, "", `${window.location.pathname}${query}`);
+    }
 
     startProposalExperience();
   }
@@ -1839,6 +1843,14 @@ document.addEventListener("DOMContentLoaded", () => {
     peThinkBtn.disabled = true;
     peThinkingBox.style.display = "none";
     renderQuestionBear("happy");
+
+    if (typeof window.__SAYBYME_ON_ACCEPT__ === "function") {
+      try {
+        window.__SAYBYME_ON_ACCEPT__();
+      } catch (err) {
+        console.error("Error executing onAccept hook:", err);
+      }
+    }
 
     const POPS = Array.from({ length: 10 }, (_, i) => {
       const a = (i / 10) * Math.PI * 2;
@@ -1931,11 +1943,108 @@ document.addEventListener("DOMContentLoaded", () => {
     showStep5();
   });
 
-  btnGenerateLink.addEventListener("click", () => {
+  function showShareModal(shareUrl, recipient) {
+    let modal = document.getElementById("sbmShareModal");
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = "sbmShareModal";
+      modal.style.cssText = "position: fixed; inset: 0; background: rgba(30, 10, 20, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 99999; padding: 20px; font-family: 'Quicksand', sans-serif;";
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div style="background: #ffffff; border-radius: 28px; padding: 32px 26px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 25px 60px -12px rgba(146, 54, 76, 0.45); border: 2px solid #F7A8B4; animation: sbm-pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);">
+        <div style="font-size: 52px; line-height: 1; margin-bottom: 8px;">🎉💌</div>
+        <h3 style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #92364C; margin: 6px 0;">
+          Your Love Story Link is Ready!
+        </h3>
+        <p style="font-size: 14px; color: #A45D6C; margin: 0 0 16px 0; line-height: 1.45;">
+          Share this unique link with <b>${recipient}</b> to open your surprise on any phone, tablet, or browser:
+        </p>
+
+        <div style="background: #FFF0F3; border: 1.5px dashed #F45D75; border-radius: 14px; padding: 12px 14px; font-size: 14px; font-weight: 600; color: #92364C; word-break: break-all; margin-bottom: 18px; user-select: all;">
+          ${shareUrl}
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button id="sbmModalCopyBtn" type="button" style="background: linear-gradient(135deg, #F45D75 0%, #D75070 100%); color: #ffffff; border: none; border-radius: 9999px; padding: 13px 24px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px -4px rgba(244, 93, 117, 0.45); display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>Copy Link</span> 📋
+          </button>
+
+          <a href="${shareUrl}" target="_blank" rel="noopener noreferrer" style="background: #FFF5F7; color: #92364C; border: 1.5px solid #F7A8B4; border-radius: 9999px; padding: 11px 22px; font-size: 14px; font-weight: 600; text-decoration: none; display: inline-block;">
+            Open Recipient Preview ↗
+          </a>
+
+          <button id="sbmModalCloseBtn" type="button" style="background: none; border: none; font-size: 13px; color: #A45D6C; cursor: pointer; margin-top: 6px; text-decoration: underline;">
+            Done
+          </button>
+        </div>
+      </div>
+    `;
+
+    modal.style.display = "flex";
+
+    const copyBtn = document.getElementById("sbmModalCopyBtn");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(shareUrl);
+        copyBtn.innerHTML = "<span>Copied! 💌</span>";
+        setTimeout(() => {
+          copyBtn.innerHTML = "<span>Copy Link</span> 📋";
+        }, 2500);
+      });
+    }
+
+    const closeBtn = document.getElementById("sbmModalCloseBtn");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+    }
+  }
+
+  btnGenerateLink.addEventListener("click", async () => {
     const sender = sessionStorage.getItem("saybyme_sender") || "Someone Special";
     const recipient = sessionStorage.getItem("saybyme_recipient") || "Special One";
-    const shareId = "saybyme_" + Math.random().toString(36).substring(2, 9);
-    alert(`🎉 Congratulations! Your love story link is ready to share:\n\n${window.location.origin}/proposal/${shareId}\n\n(For ${recipient} with love from ${sender} ❤️)`);
+    const question = sessionStorage.getItem("saybyme_question") || "Will you be mine?";
+    const message = sessionStorage.getItem("saybyme_message") || DEFAULT_MESSAGE;
+    const rawCelebs = sessionStorage.getItem("saybyme_celebrations");
+    const celebrations = rawCelebs ? JSON.parse(rawCelebs) : ["memories", "fireworks"];
+
+    const origText = btnGenerateLink.innerHTML;
+    btnGenerateLink.innerHTML = "<span>Saving to Convex... ✨</span>";
+    btnGenerateLink.disabled = true;
+
+    try {
+      const res = await fetch("https://brazen-stoat-999.ap-southeast-2.convex.cloud/api/mutation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          path: "proposals:createProposal",
+          args: {
+            senderName: sender,
+            recipientName: recipient,
+            question: question,
+            message: message,
+            celebrations: celebrations,
+          },
+          format: "json",
+        }),
+      });
+
+      const data = await res.json();
+      const slug = data.value?.slug || ("sbm_" + Math.random().toString(36).substring(2, 9));
+      const shareUrl = `${window.location.origin}/preview/${slug}`;
+      showShareModal(shareUrl, recipient);
+    } catch (err) {
+      console.error("Convex error:", err);
+      const fallbackSlug = "sbm_" + Math.random().toString(36).substring(2, 9);
+      const shareUrl = `${window.location.origin}/preview/${fallbackSlug}`;
+      showShareModal(shareUrl, recipient);
+    } finally {
+      btnGenerateLink.innerHTML = origText;
+      btnGenerateLink.disabled = false;
+    }
   });
 
   // Step 4: 4 Suggestions Logic (Click + to add to letter, - to remove)
@@ -2046,58 +2155,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Initial step setup
-  const params = new URLSearchParams(window.location.search);
-  const initialStep = params.get("step");
-  const initialName = params.get("name") || sessionStorage.getItem("saybyme_sender");
-  const initialTo = params.get("to") || sessionStorage.getItem("saybyme_recipient");
+  // Step 1: Submit -> Step 2
+  if (homeForm) {
+    homeForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = nameInput ? nameInput.value.trim() : "";
+      if (!name) return;
 
-  if (initialStep === "7") {
-    if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
-    if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
-    showStep7();
-  } else if (initialStep === "5") {
-    if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
-    if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
-    showStep5();
-  } else if (initialStep === "4") {
-    if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
-    if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
-    showStep4();
-  } else if (initialStep === "3" || (initialName && initialTo)) {
-    if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
-    if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
-    showStep3();
-  } else if (initialName) {
-    showStep2(initialName);
-  } else {
-    showStep1();
+      sessionStorage.setItem("saybyme_sender", name);
+      showStep2(name);
+    });
   }
 
-  // Step 1: Submit -> Step 2
-  homeForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = nameInput.value.trim();
-    if (!name) return;
-
-    sessionStorage.setItem("saybyme_sender", name);
-    showStep2(name);
-  });
-
   // Step 2: Back -> Step 1
-  backToStep1.addEventListener("click", () => {
-    showStep1();
-  });
+  if (backToStep1) {
+    backToStep1.addEventListener("click", () => {
+      showStep1();
+    });
+  }
 
   // Step 2: Submit -> Step 3
-  recipientForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const to = recipientInput.value.trim();
-    if (!to) return;
+  if (recipientForm) {
+    recipientForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const to = recipientInput ? recipientInput.value.trim() : "";
+      if (!to) return;
 
-    sessionStorage.setItem("saybyme_recipient", to);
-    showStep3();
-  });
+      sessionStorage.setItem("saybyme_recipient", to);
+      showStep3();
+    });
+  }
 
   // Step 3: Option Card Selection
   optionCards.forEach((card) => {
@@ -2113,47 +2200,107 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Step 3: Back -> Step 2
-  backToStep2.addEventListener("click", () => {
-    const from = sessionStorage.getItem("saybyme_sender") || "";
-    showStep2(from);
-  });
+  if (backToStep2) {
+    backToStep2.addEventListener("click", () => {
+      const from = sessionStorage.getItem("saybyme_sender") || "";
+      showStep2(from);
+    });
+  }
 
   // Step 3: Submit -> Step 4
-  questionForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    sessionStorage.setItem("saybyme_question", selectedQuestion);
-    showStep4();
-  });
+  if (questionForm) {
+    questionForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      sessionStorage.setItem("saybyme_question", selectedQuestion);
+      showStep4();
+    });
+  }
 
   // Step 4: Back -> Step 3
-  backToStep3.addEventListener("click", () => {
-    showStep3();
-  });
+  if (backToStep3) {
+    backToStep3.addEventListener("click", () => {
+      showStep3();
+    });
+  }
 
   // Step 4: Submit -> Step 5
-  letterForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const message = letterTextarea.value.trim() || DEFAULT_MESSAGE;
-    sessionStorage.setItem("saybyme_message", message);
-    showStep5();
-  });
+  if (letterForm) {
+    letterForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const message = (letterTextarea && letterTextarea.value.trim()) || DEFAULT_MESSAGE;
+      sessionStorage.setItem("saybyme_message", message);
+      showStep5();
+    });
+  }
 
   // Step 5: Back -> Step 4
-  backToStep4.addEventListener("click", () => {
-    showStep4();
-  });
+  if (backToStep4) {
+    backToStep4.addEventListener("click", () => {
+      showStep4();
+    });
+  }
 
   // Step 5: Submit -> Step 7 (Final Proposal Preview)
-  step5Form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    sessionStorage.setItem("saybyme_celebrations", JSON.stringify(selectedCelebrations));
-    showStep7();
-  });
+  if (step5Form) {
+    step5Form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      sessionStorage.setItem("saybyme_celebrations", JSON.stringify(selectedCelebrations));
+      showStep7();
+    });
+  }
+
+  // Initial step setup (evaluated safely after all event handlers are registered)
+  try {
+    if (window.__SAYBYME_RECIPIENT_MODE__ || window.location.pathname.startsWith("/preview")) {
+      document.body.classList.add("recipient-view");
+      showStep7();
+      initCardDeck();
+      window.initSayByMe = initSayByMe;
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const initialStep = params.get("step");
+    const initialName = params.get("name") || sessionStorage.getItem("saybyme_sender");
+    const initialTo = params.get("to") || sessionStorage.getItem("saybyme_recipient");
+
+    if (initialStep === "7") {
+      if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
+      if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
+      showStep7();
+    } else if (initialStep === "5") {
+      if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
+      if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
+      showStep5();
+    } else if (initialStep === "4") {
+      if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
+      if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
+      showStep4();
+    } else if (initialStep === "3" || (initialName && initialTo)) {
+      if (initialName) sessionStorage.setItem("saybyme_sender", initialName);
+      if (initialTo) sessionStorage.setItem("saybyme_recipient", initialTo);
+      showStep3();
+    } else if (initialName) {
+      showStep2(initialName);
+    } else {
+      showStep1();
+    }
+  } catch (err) {
+    console.error("Error setting initial step, falling back to Step 1:", err);
+    showStep1();
+  }
 
   // Initialize Card Deck & Audio for entry page
   initCardDeck();
   attemptAutoplayBgm();
-});
+  window.initSayByMe = initSayByMe;
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initSayByMe);
+} else {
+  initSayByMe();
+}
 
 
 

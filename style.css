@@ -2253,113 +2253,284 @@ p.sbm-caret::after {
   animation: sbm-rise linear infinite;
 }
 
-/* Right-hand side summary card */
+/* Right-hand side summary & unlock section (Exact Reference Recreation) */
+.step7RightCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 440px;
+}
+
+.step7BrandHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-bottom: 2px;
+}
+
+.step7BrandText {
+  font-family: var(--font-itim), var(--font-script), cursive;
+  font-size: 32px;
+  font-weight: 700;
+  color: #7A263A;
+  letter-spacing: -0.5px;
+}
+
 .step7SummaryCard {
   width: 100%;
   border-radius: 28px;
-  border: 1.5px solid #FADBDD;
-  background: rgba(255, 255, 255, 0.88);
-  padding: 24px;
-  box-shadow: 0 18px 40px -24px rgba(146, 54, 76, 0.4);
+  background: #FFFFFF;
+  border: 1px solid rgba(250, 219, 221, 0.7);
+  padding: 30px 26px 24px 26px;
+  box-shadow: 0 16px 45px -12px rgba(184, 50, 80, 0.12), 0 4px 16px rgba(0, 0, 0, 0.03);
   text-align: left;
+  box-sizing: border-box;
 }
 
-.summaryTitle {
-  font-family: var(--font-caveat), cursive;
+.step7ReadyTitle {
+  font-family: var(--font-cormorant), var(--font-serif), Georgia, serif;
   font-size: 28px;
   font-weight: 700;
-  color: #92364C;
+  font-style: italic;
+  color: #721C2F;
+  text-align: center;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.2px;
 }
 
-.summaryList {
-  margin-top: 16px;
+.step7TitleHeart {
+  font-style: normal;
+  font-weight: 400;
+  color: #721C2F;
+  margin-left: 2px;
+}
+
+.step7ReadySubtitle {
+  font-family: var(--font-quick), sans-serif;
+  font-size: 13.5px;
+  color: #7C6873;
+  text-align: center;
+  margin: 0 0 22px 0;
+  font-weight: 500;
+}
+
+.step7SummaryList {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  font-size: 14px;
 }
 
-.summaryItem {
+.step7SummaryItem {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid #F3E8EC;
+  font-size: 14.5px;
 }
 
-.summaryLabel {
-  color: #A45D6C;
+.step7ItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.summaryVal {
+.step7RowIcon {
+  flex-shrink: 0;
+  stroke: #D75070;
+}
+
+.step7Label {
+  font-family: var(--font-quick), sans-serif;
+  color: #4A3A43;
+  font-size: 14.5px;
+  font-weight: 500;
+}
+
+.step7Val {
+  font-family: var(--font-quick), sans-serif;
   font-weight: 700;
-  color: #631e2b;
+  color: #2D1A23;
   text-align: right;
+  font-size: 14.5px;
+}
+
+.step7PlaysSection {
+  padding: 14px 0 6px 0;
+}
+
+.step7PlaysLabel {
+  font-family: var(--font-quick), sans-serif;
+  font-size: 13.5px;
+  color: #4A3A43;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 
 .celebrationPills {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 10px;
 }
 
 .celebPill {
-  background: #FADBDD;
-  color: #92364C;
-  font-size: 12px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #FCECEF;
+  color: #6C1E2F;
+  font-size: 13px;
+  font-weight: 600;
   border-radius: 999px;
-  padding: 4px 12px;
+  padding: 6px 14px;
+  border: 1px solid rgba(245, 196, 205, 0.4);
 }
 
-.step7ActionRow {
-  display: flex;
-  gap: 14px;
+.celebPill svg {
+  flex-shrink: 0;
+}
+
+/* Inner Pink Card */
+.step7UnlockCard {
+  position: relative;
   margin-top: 20px;
+  background: linear-gradient(180deg, #FFF4F6 0%, #FDF0F3 100%);
+  border: 1px solid #FCE4E9;
+  border-radius: 22px;
+  padding: 26px 20px 22px 20px;
+  text-align: center;
+}
+
+/* Floating 3D Love Envelope */
+.floatingEnvelopeWrap {
+  position: absolute;
+  top: -24px;
+  right: 14px;
+  pointer-events: none;
+  animation: envFloatBob 3.5s ease-in-out infinite;
+}
+
+@keyframes envFloatBob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(2deg); }
+}
+
+.envFloatHeart1 {
+  animation: heartPulse1 2.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.envFloatHeart2 {
+  animation: heartPulse2 2.6s ease-in-out infinite 0.4s;
+  transform-origin: center;
+}
+
+@keyframes heartPulse1 {
+  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.9; }
+  50% { transform: scale(1.15) translate(2px, -3px); opacity: 1; }
+}
+
+@keyframes heartPulse2 {
+  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.8; }
+  50% { transform: scale(1.18) translate(1px, -2px); opacity: 1; }
+}
+
+.step7LockSquircle {
+  width: 46px;
+  height: 46px;
+  background: #FBD5DC;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px auto;
+  box-shadow: 0 4px 10px rgba(215, 80, 112, 0.12);
+}
+
+.step7UnlockTitle {
+  font-family: var(--font-cormorant), var(--font-serif), Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #721C2F;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.2px;
+}
+
+.step7UnlockSubtitle {
+  font-family: var(--font-quick), sans-serif;
+  font-size: 13px;
+  color: #6C5B65;
+  line-height: 1.45;
+  max-width: 300px;
+  margin: 0 auto 18px auto;
+}
+
+.step7UnlockCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-}
-
-.step7ActionRow .backBtnStep7 {
-  flex: 1;
+  max-width: 290px;
   min-height: 48px;
-  border-radius: 999px;
-  border: 2px solid #FF8FA3;
-  background: #fff;
-  color: #92364C;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all .2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.step7ActionRow .backBtnStep7:hover {
-  background: #FADBDD;
-}
-
-.step7ActionRow .continueBtnStep7 {
-  flex: 1.4;
-  min-height: 48px;
-  border-radius: 999px;
-  background: #D75070;
-  color: #fff;
-  font-weight: 700;
-  font-size: 16px;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #DE5073 0%, #C73256 100%);
+  color: #FFFFFF;
   border: none;
+  border-radius: 999px;
+  font-family: var(--font-quick), sans-serif;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 22px -8px rgba(215, 80, 112, 0.7);
-  transition: all .2s;
+  box-shadow: 0 8px 20px rgba(199, 50, 86, 0.35);
+  transition: all 0.2s ease;
+}
+
+.step7UnlockCtaBtn:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 10px 24px rgba(199, 50, 86, 0.45);
+  background: linear-gradient(135deg, #E65A7C 0%, #CF385D 100%);
+}
+
+.step7UnlockCtaBtn:active {
+  transform: translateY(0);
+}
+
+.step7BtnLockIcon {
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.step7BottomAction {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.step7BackPillBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  min-height: 42px;
+  padding: 8px 32px;
+  background: #FFFFFF;
+  border: 1.5px solid #F39EAFA6;
+  border-radius: 999px;
+  color: #721C2F;
+  font-family: var(--font-quick), sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(215, 80, 112, 0.08);
 }
 
-.step7ActionRow .continueBtnStep7:hover {
-  background: #c4415f;
-  transform: translateY(-2px);
+.step7BackPillBtn:hover {
+  background: #FFF4F6;
+  border-color: #D75070;
+  transform: translateY(-1px);
 }
 
 /* ------------------------------------------------------------------ */
