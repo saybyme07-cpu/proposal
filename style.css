@@ -1356,30 +1356,38 @@ body {
 
 .phoneFrame {
   position: relative;
-  height: clamp(500px, calc(100vh - 160px), 640px);
-  width: auto;
-  aspect-ratio: 9 / 18.5;
-  max-width: 325px;
-  min-width: 255px;
-  border-radius: clamp(36px, 5vh, 46px);
+  width: 320px;
+  min-width: 320px;
+  max-width: 320px;
+  height: 640px;
+  min-height: 640px;
+  max-height: 640px;
+  aspect-ratio: auto;
+  border-radius: 46px;
   background: #2a1520;
-  padding: 8px;
-  box-shadow: 0 30px 65px -15px rgba(146, 54, 76, 0.45), inset 0 0 0 2px #4a2535;
+  padding: 10px;
+  box-shadow: 0 35px 70px -20px rgba(146, 54, 76, 0.55), inset 0 0 0 2px #4a2535;
   user-select: none;
   box-sizing: border-box;
   flex-shrink: 0;
   margin: 0 auto;
 }
 
+@media (max-height: 840px) and (min-width: 861px) {
+  .phoneFrameWrapper {
+    zoom: 0.9;
+  }
+}
+
+@media (max-height: 720px) and (min-width: 861px) {
+  .phoneFrameWrapper {
+    zoom: 0.82;
+  }
+}
+
 @media (max-width: 480px) {
-  .phoneFrame {
-    width: min(320px, calc(100vw - 32px));
-    height: auto;
-    aspect-ratio: 9 / 18.5;
-    max-width: 100%;
-    min-width: auto;
-    border-radius: 34px;
-    padding: 7px;
+  .phoneFrameWrapper {
+    zoom: 0.88;
   }
 }
 
@@ -1614,10 +1622,8 @@ body {
 ============================================================================== */
 .sbm-wel {
   position: relative;
-  width: clamp(180px, 78%, 236px);
-  max-width: 100%;
-  aspect-ratio: 236 / 164;
-  height: auto;
+  width: 236px;
+  height: 164px;
   cursor: pointer;
   perspective: 900px;
   user-select: none;
@@ -1635,14 +1641,13 @@ body {
 
 .sbm-wel-paper {
   position: absolute;
-  left: 6%;
-  right: 6%;
-  top: 6%;
-  bottom: 6%;
-  height: auto;
+  left: 14px;
+  right: 14px;
+  top: 10px;
+  height: 145px;
   background: #ffffff;
   border-radius: 10px;
-  padding: clamp(10px, 2vh, 16px) clamp(10px, 3%, 14px);
+  padding: 16px 14px;
   box-shadow: 0 4px 16px rgba(146, 54, 76, 0.15);
   z-index: 2;
   transition: transform 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s;
@@ -1652,7 +1657,7 @@ body {
 }
 
 .sbm-wel.is-open .sbm-wel-paper {
-  transform: translateY(-50%) scale(1.02);
+  transform: translateY(-84px) scale(1.02);
   box-shadow: 0 16px 36px rgba(146, 54, 76, 0.3);
 }
 
@@ -1672,7 +1677,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 58%;
+  height: 96px;
   background: linear-gradient(to bottom, #f38da0, #ee768c);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
   transform-origin: top center;
@@ -1688,11 +1693,11 @@ body {
 /* Heart wax seal button */
 .sbm-wel-seal {
   position: absolute;
-  top: 55%;
+  top: 92px;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: clamp(40px, 20%, 48px);
-  height: clamp(40px, 20%, 48px);
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #e84d68, #b8233f);
   border: 2px solid rgba(255, 255, 255, 0.55);
