@@ -1948,59 +1948,147 @@ function initSayByMe() {
     if (!modal) {
       modal = document.createElement("div");
       modal.id = "sbmShareModal";
-      modal.style.cssText = "position: fixed; inset: 0; background: rgba(30, 10, 20, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 99999; padding: 20px; font-family: 'Quicksand', sans-serif;";
       document.body.appendChild(modal);
     }
 
-    modal.innerHTML = `
-      <div style="background: #ffffff; border-radius: 28px; padding: 32px 26px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 25px 60px -12px rgba(146, 54, 76, 0.45); border: 2px solid #F7A8B4; animation: sbm-pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);">
-        <div style="font-size: 52px; line-height: 1; margin-bottom: 8px;">🎉💌</div>
-        <h3 style="font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: #92364C; margin: 6px 0;">
-          Your Love Story Link is Ready!
-        </h3>
-        <p style="font-size: 14px; color: #A45D6C; margin: 0 0 16px 0; line-height: 1.45;">
-          Share this unique link with <b>${recipient}</b> to open your surprise on any phone, tablet, or browser:
-        </p>
+    modal.style.cssText = "position: fixed; inset: 0; background: rgba(26, 10, 17, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 99999; padding: 20px; font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif; animation: sbm-fade 0.25s ease;";
 
-        <div style="background: #FFF0F3; border: 1.5px dashed #F45D75; border-radius: 14px; padding: 12px 14px; font-size: 14px; font-weight: 600; color: #92364C; word-break: break-all; margin-bottom: 18px; user-select: all;">
-          ${shareUrl}
+    modal.innerHTML = `
+      <div style="position: relative; background: #ffffff; border-radius: 26px; padding: 36px 30px 28px; max-width: 420px; width: 100%; box-shadow: 0 30px 70px -15px rgba(114, 28, 47, 0.35), 0 0 0 1px rgba(247, 168, 180, 0.35); text-align: center; box-sizing: border-box; animation: sbm-pop 0.35s cubic-bezier(0.16, 1, 0.3, 1);">
+        
+        <!-- Top Close Icon Button -->
+        <button id="sbmModalXBtn" type="button" aria-label="Close" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: #FAF2F4; border: none; color: #8F5564; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.2s ease;">
+          ✕
+        </button>
+
+        <!-- Minimal Heart Badge -->
+        <div style="width: 52px; height: 52px; margin: 0 auto 16px; border-radius: 50%; background: linear-gradient(145deg, #FFF0F3 0%, #FDE4E9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px -4px rgba(215, 80, 112, 0.25); border: 1px solid rgba(247, 168, 180, 0.5);">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="#D75070" stroke="#D75070" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button id="sbmModalCopyBtn" type="button" style="background: linear-gradient(135deg, #F45D75 0%, #D75070 100%); color: #ffffff; border: none; border-radius: 9999px; padding: 13px 24px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px -4px rgba(244, 93, 117, 0.45); display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-            <span>Copy Link</span> 📋
+        <h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 700; color: #581827; margin: 0 0 6px 0; letter-spacing: -0.3px;">
+          Your Proposal is Live
+        </h3>
+        <p style="font-size: 13.5px; color: #82606C; margin: 0 0 22px 0; line-height: 1.45; font-weight: 500;">
+          Share this private link with <b style="color: #6C192A;">${recipient}</b> to let them experience your surprise.
+        </p>
+
+        <!-- Clean Minimal Link Field -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: #FAF5F6; border: 1px solid #F1DEE4; border-radius: 14px; padding: 7px 8px 7px 14px; margin-bottom: 16px; box-sizing: border-box;">
+          <span style="font-family: 'Quicksand', sans-serif; font-size: 13px; font-weight: 600; color: #5A2735; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; padding-right: 10px;">
+            ${shareUrl.replace(/^https?:\/\//, '')}
+          </span>
+          <button id="sbmModalMiniCopyBtn" type="button" style="flex-shrink: 0; background: #ffffff; border: 1px solid #ECCFD7; border-radius: 10px; padding: 6px 13px; font-size: 12px; font-weight: 700; color: #D75070; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: all 0.15s ease;">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+
+        <!-- Action CTAs -->
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <button id="sbmModalCopyBtn" type="button" style="width: 100%; background: #D75070; color: #ffffff; border: none; border-radius: 14px; padding: 13px 20px; font-size: 14.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 10px 22px -6px rgba(215, 80, 112, 0.45); transition: transform 0.15s ease, background 0.15s ease;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Copy Link</span>
           </button>
 
-          <a href="${shareUrl}" target="_blank" rel="noopener noreferrer" style="background: #FFF5F7; color: #92364C; border: 1.5px solid #F7A8B4; border-radius: 9999px; padding: 11px 22px; font-size: 14px; font-weight: 600; text-decoration: none; display: inline-block;">
-            Open Recipient Preview ↗
+          <a href="${shareUrl}" target="_blank" rel="noopener noreferrer" style="width: 100%; box-sizing: border-box; background: transparent; color: #6C1E2F; border: 1.5px solid #F0D4DC; border-radius: 14px; padding: 12px 20px; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.15s ease;">
+            <span>Open Preview</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
           </a>
-
-          <button id="sbmModalCloseBtn" type="button" style="background: none; border: none; font-size: 13px; color: #A45D6C; cursor: pointer; margin-top: 6px; text-decoration: underline;">
-            Done
-          </button>
         </div>
       </div>
     `;
 
     modal.style.display = "flex";
 
-    const copyBtn = document.getElementById("sbmModalCopyBtn");
-    if (copyBtn) {
-      copyBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(shareUrl);
-        copyBtn.innerHTML = "<span>Copied! 💌</span>";
-        setTimeout(() => {
-          copyBtn.innerHTML = "<span>Copy Link</span> 📋";
-        }, 2500);
-      });
+    function copyShareLink(btn) {
+      navigator.clipboard.writeText(shareUrl);
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Copied! 💌</span>`;
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+      }, 2200);
     }
 
-    const closeBtn = document.getElementById("sbmModalCloseBtn");
-    if (closeBtn) {
-      closeBtn.addEventListener("click", () => {
+    const copyBtn = document.getElementById("sbmModalCopyBtn");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", () => copyShareLink(copyBtn));
+    }
+
+    const miniCopyBtn = document.getElementById("sbmModalMiniCopyBtn");
+    if (miniCopyBtn) {
+      miniCopyBtn.addEventListener("click", () => copyShareLink(miniCopyBtn));
+    }
+
+    const xBtn = document.getElementById("sbmModalXBtn");
+    if (xBtn) {
+      xBtn.addEventListener("click", () => {
         modal.style.display = "none";
       });
     }
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  }
+
+  function renderUnlockedState(shareUrl, recipient) {
+    const unlockCard = document.querySelector(".step7UnlockCard");
+    if (!unlockCard) return;
+
+    unlockCard.innerHTML = `
+      <div style="text-align: center; padding: 10px 4px 6px;">
+        <div style="width: 44px; height: 44px; margin: 0 auto 12px; border-radius: 50%; background: #FFF0F3; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -4px rgba(215, 80, 112, 0.25); border: 1px solid rgba(247, 168, 180, 0.45);">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#D75070" stroke="#D75070" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </div>
+        <h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 23px; font-weight: 700; color: #581827; margin: 0 0 4px 0;">
+          Proposal Link Unlocked ✨
+        </h3>
+        <p style="font-size: 13px; color: #82606C; margin: 0 0 16px 0; font-weight: 500;">
+          Ready to share with <b style="color: #6C192A;">${recipient}</b>
+        </p>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #F1DEE4; border-radius: 12px; padding: 6px 8px 6px 12px; margin-bottom: 14px; box-sizing: border-box;">
+          <span style="font-family: 'Quicksand', sans-serif; font-size: 12.5px; font-weight: 600; color: #5A2735; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; padding-right: 8px;">
+            ${shareUrl.replace(/^https?:\/\//, '')}
+          </span>
+          <button id="cardInlineCopyBtn" type="button" style="flex-shrink: 0; background: #FAF2F4; border: 1px solid #ECCFD7; border-radius: 8px; padding: 5px 11px; font-size: 11.5px; font-weight: 700; color: #D75070; cursor: pointer;">
+            Copy
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button id="cardCopyBtn" type="button" style="flex: 1; background: #D75070; color: #ffffff; border: none; border-radius: 12px; padding: 11px 16px; font-size: 13.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 8px 18px -4px rgba(215, 80, 112, 0.4);">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Copy Link</span>
+          </button>
+          <a href="${shareUrl}" target="_blank" rel="noopener noreferrer" style="flex: 1; box-sizing: border-box; background: transparent; color: #6C1E2F; border: 1.5px solid #F0D4DC; border-radius: 12px; padding: 11px 16px; font-size: 13.5px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>Open Preview</span>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          </a>
+        </div>
+      </div>
+    `;
+
+    function copyCardLink(btn) {
+      navigator.clipboard.writeText(shareUrl);
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<span>Copied! 💌</span>`;
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2200);
+    }
+
+    const cCopyBtn = document.getElementById("cardCopyBtn");
+    if (cCopyBtn) cCopyBtn.addEventListener("click", () => copyCardLink(cCopyBtn));
+    const cInlineBtn = document.getElementById("cardInlineCopyBtn");
+    if (cInlineBtn) cInlineBtn.addEventListener("click", () => copyCardLink(cInlineBtn));
   }
 
   // Helper to dynamically load Razorpay checkout script if not present
@@ -2118,11 +2206,13 @@ function initSayByMe() {
           const slug = data.value?.slug || ("sbm_" + Math.random().toString(36).substring(2, 9));
           const shareUrl = `${window.location.origin}/preview/${slug}`;
           showShareModal(shareUrl, recipient);
+          renderUnlockedState(shareUrl, recipient);
         } catch (err) {
           console.error("Convex error:", err);
           const fallbackSlug = "sbm_" + Math.random().toString(36).substring(2, 9);
           const shareUrl = `${window.location.origin}/preview/${fallbackSlug}`;
           showShareModal(shareUrl, recipient);
+          renderUnlockedState(shareUrl, recipient);
         } finally {
           btnGenerateLink.innerHTML = origText;
           btnGenerateLink.disabled = false;
