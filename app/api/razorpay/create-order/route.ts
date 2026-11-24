@@ -5,9 +5,9 @@ export async function POST(req: Request) {
     const keyId =
       process.env.RAZORPAY_KEY_ID ||
       process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
-      "rzp_test_U2VeJFeEtjG3rv";
+      "rzp_live_U40IbdT5uMc3ZW";
     const keySecret =
-      process.env.RAZORPAY_KEY_SECRET || "0oIa1FWJtnw2rZ7NeK3UoDuI";
+      process.env.RAZORPAY_KEY_SECRET || "ywHZp7c8E9DD5JYkF1tCPsnW";
 
     const body = await req.json().catch(() => ({}));
     const amount = body.amount || 9900; // 99 INR in paise

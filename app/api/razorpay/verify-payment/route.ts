@@ -4,7 +4,7 @@ import crypto from "crypto";
 export async function POST(req: Request) {
   try {
     const keySecret =
-      process.env.RAZORPAY_KEY_SECRET || "0oIa1FWJtnw2rZ7NeK3UoDuI";
+      process.env.RAZORPAY_KEY_SECRET || "ywHZp7c8E9DD5JYkF1tCPsnW";
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       await req.json();
 

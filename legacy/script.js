@@ -2058,7 +2058,7 @@ function initSayByMe() {
       console.warn("Could not reach /api/razorpay/create-order, using fallback client checkout:", e);
     }
 
-    const keyId = (orderData && orderData.keyId) || "rzp_test_U2VeJFeEtjG3rv";
+    const keyId = (orderData && orderData.keyId) || "rzp_live_U40IbdT5uMc3ZW";
 
     // 2. Configure Razorpay Checkout
     const options = {
