@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       process.env.RAZORPAY_KEY_SECRET || "ywHZp7c8E9DD5JYkF1tCPsnW";
 
     const body = await req.json().catch(() => ({}));
-    const amount = body.amount || 9900; // 99 INR in paise
+    const amount = body.amount || 19900; // 199 INR in paise (₹199)
 
     const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
 

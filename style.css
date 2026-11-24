@@ -2533,9 +2533,9 @@ p.sbm-caret::after {
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 290px;
+  max-width: 330px;
   min-height: 48px;
-  padding: 10px 24px;
+  padding: 10px 20px;
   background: linear-gradient(135deg, #DE5073 0%, #C73256 100%);
   color: #FFFFFF;
   border: none;

@@ -2134,7 +2134,7 @@ function initSayByMe() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: 9900, // ₹99
+          amount: 19900, // ₹199
           sender: sender,
           recipient: recipient,
         }),
@@ -2151,10 +2151,10 @@ function initSayByMe() {
     // 2. Configure Razorpay Checkout
     const options = {
       key: keyId,
-      amount: (orderData && orderData.amount) || 9900, // ₹99 = 9900 paise
+      amount: (orderData && orderData.amount) || 19900, // ₹199 = 19900 paise
       currency: "INR",
       name: "SayByMe",
-      description: "Unlock Private Proposal Link (₹99)",
+      description: "Unlock Private Proposal Link (₹199)",
       image: "/images/logo.png",
       order_id: orderData ? orderData.orderId : undefined,
       prefill: {
