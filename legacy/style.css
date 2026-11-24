@@ -1297,25 +1297,28 @@ body {
    STEP 7: FINAL PROPOSAL PREVIEW & REUSABLE PROPOSAL EXPERIENCE
 ============================================================================== */
 .center7 {
-  padding-top: max(40px, 4.5vh);
+  padding-top: max(20px, 3vh);
   max-width: 1200px;
   margin: 0 auto;
-  padding-bottom: 70px;
+  padding-bottom: 50px;
+  box-sizing: border-box;
 }
 
 .step7TitleSection {
   text-align: center;
-  margin-top: 14px;
+  margin-top: 6px;
 }
 
 .step7Grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
-  align-items: center;
+  align-items: start;
+  justify-items: center;
   width: 100%;
   max-width: 980px;
-  margin-top: 32px;
+  margin-top: 24px;
+  box-sizing: border-box;
 }
 
 @media (max-width: 900px) {
@@ -1330,19 +1333,80 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .phoneFrame {
   position: relative;
   width: 320px;
-  height: min(650px, 75vh);
-  aspect-ratio: 9 / 19;
+  min-width: 320px;
+  max-width: 320px;
+  height: 640px;
+  min-height: 640px;
+  max-height: 640px;
+  aspect-ratio: auto;
   border-radius: 46px;
   background: #2a1520;
   padding: 10px;
-  box-shadow: 0 40px 70px -25px rgba(146, 54, 76, 0.65), inset 0 0 0 2px #4a2535;
+  box-shadow: 0 35px 70px -20px rgba(146, 54, 76, 0.55), inset 0 0 0 2px #4a2535;
   user-select: none;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .center7 {
+    padding-top: 14px;
+    padding-bottom: 28px;
+  }
+  .step7TitleSection {
+    margin-top: 0;
+  }
+  .step7TitleSection h1 {
+    font-size: clamp(28px, 3vw, 38px) !important;
+  }
+  .step7TitleSection p {
+    font-size: 14px !important;
+    margin-top: 4px !important;
+  }
+  .step7Grid {
+    margin-top: 14px;
+    gap: 28px;
+  }
+  .phoneFrameWrapper {
+    transform: scale(0.92);
+    transform-origin: top center;
+    margin-bottom: -50px;
+  }
+}
+
+@media (max-height: 700px) and (min-width: 901px) {
+  .phoneFrameWrapper {
+    transform: scale(0.84);
+    transform-origin: top center;
+    margin-bottom: -100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .phoneFrame {
+    width: min(320px, calc(100vw - 32px));
+    min-width: auto;
+    max-width: 100%;
+    height: min(640px, calc((100vw - 32px) * 2));
+    min-height: auto;
+    max-height: none;
+    border-radius: 36px;
+    padding: 8px;
+  }
+  .phoneScreen {
+    border-radius: 28px;
+  }
 }
 
 /* Side buttons */
@@ -1397,6 +1461,7 @@ body {
   background: #1c0d14;
   border-radius: 999px;
   z-index: 50;
+  pointer-events: none;
 }
 
 /* Home Indicator */
@@ -1454,12 +1519,14 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
   animation: sbm-fade 0.5s ease both;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  box-sizing: border-box;
 }
 
 .sbmStageBox::-webkit-scrollbar {
@@ -1469,12 +1536,16 @@ body {
 }
 
 .sbmStageContent {
-  margin: auto;
+  margin: 0 auto;
+  min-height: 100%;
   display: flex;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   flex-direction: column;
   align-items: center;
-  padding: 48px 20px 40px 20px;
+  justify-content: center;
+  padding: 38px 16px 28px 16px;
   text-align: center;
 }
 
@@ -1566,10 +1637,13 @@ body {
 .sbm-wel {
   position: relative;
   width: 236px;
+  max-width: 100%;
   height: 164px;
   cursor: pointer;
   perspective: 900px;
   user-select: none;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .sbm-wel-back {
